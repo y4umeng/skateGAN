@@ -4,7 +4,7 @@ import math
 import torch
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
-from torchvision.transforms import ToTensor, Compose, Normalize
+from torchvision import transforms
 from tqdm import tqdm
 
 from mae import *
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='vit-t-mae.pt')
+    parser.add_argument('--model_path', type=str, default='vit-t-mae.pt') 
 
     args = parser.parse_args()
 
@@ -33,9 +33,14 @@ if __name__ == '__main__':
 
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
-
-    train_dataset = torchvision.datasets.CIFAR10('data', train=True, download=True, transform=Compose([ToTensor(), Normalize(0.5, 0.5)]))
-    val_dataset = torchvision.datasets.CIFAR10('data', train=False, download=True, transform=Compose([ToTensor(), Normalize(0.5, 0.5)]))
+    preprocess = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    train_dataset = torchvision.datasets.ImageNet('data', train=True, download=True, transform=preprocess)
+    val_dataset = torchvision.datasets.ImageNet('data', train=False, download=True, transform=preprocess)
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
     writer = SummaryWriter(os.path.join('logs', 'cifar10', 'mae-pretrain'))
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -78,3 +83,5 @@ if __name__ == '__main__':
         
         ''' save model '''
         torch.save(model, args.model_path)
+        torch.save(model.encoder, 'encoder.pt')
+        torch.save(model.decoder, 'decoder.pt')
