@@ -34,7 +34,7 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
     preprocess = transforms.Compose([
-        # transforms.Resize(64),
+        transforms.Resize(64),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
