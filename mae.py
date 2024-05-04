@@ -162,7 +162,8 @@ class ViT_Classifier(torch.nn.Module):
         features = self.layer_norm(self.transformer(patches))
         features = rearrange(features, 'b t c -> t b c')
         logits = self.head(features[0])
-        return logits
+        classes = torch.argmax(torch.nn.LogSoftmax(logits), dim=1)
+        return classes * 2.0
 
 
 if __name__ == '__main__':
