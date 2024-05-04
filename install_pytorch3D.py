@@ -24,5 +24,5 @@ if __name__ == '__main__':
             print(f"failed to find/install wheel for {version_str}")
     if need_pytorch3d:
         print("Installing PyTorch3D from source")
-        !pip install ninja
-        !pip install 'git+https://github.com/facebookresearch/pytorch3d.git@stable'
+        # !pip install ninja
+        # !pip install 'git+https://github.com/facebookresearch/pytorch3d.git@stable'
