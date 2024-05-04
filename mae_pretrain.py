@@ -10,6 +10,8 @@ from tqdm import tqdm
 from mae import *
 from utils import setup_seed
 
+#test
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=42)
