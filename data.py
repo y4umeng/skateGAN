@@ -11,7 +11,16 @@ class skate_data(Dataset):
     def __init__(self, data_path, label_csv_path, device, transform, dist_classes=100):
         self.transform = transform
         self.device = device
-        self.files = glob(path.join(data_path, "*.jpg"))
+        files = glob(path.join(data_path, "*.jpg"))
+        frame_ids = [f.split('/')[-1].split('.')[0] for f in self.files]
+        self.files = []
+        self.frame_ids = []
+
+        for file, id in zip(files, frame_ids):
+            if '_' not in id:
+                self.files.append(file)
+                self.frame_ids.append(id)
+
         self.labels = {}
         with open(label_csv_path, 'r') as data:
             count = 0
@@ -28,7 +37,7 @@ class skate_data(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        labels = self.labels[self.files[idx].split('/')[-1].split('.')[0]].to(self.device)
+        labels = self.labels[self.frame_ids].to(self.device)
         return self.transform(Image.open(self.files[idx])).to(self.device), labels[0], labels[1], labels[2]
 
 class skate_data_pretrain(Dataset):
