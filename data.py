@@ -10,7 +10,7 @@ class skate_data(Dataset):
     def __init__(self, data_path, label_csv_path, device, transform):
         self.transform = transform
         self.device = device
-        self.files = sorted(glob(path.join(data_path), "*.jpg"))
+        self.files = sorted(glob(path.join(data_path, "*.jpg")))
         self.labels = {}
         with open(label_csv_path, 'r') as data:
             count = 0
