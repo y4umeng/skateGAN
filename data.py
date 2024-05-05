@@ -28,10 +28,8 @@ class skate_data(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        frame_id = self.files[idx].split('/')[-1].split('.')[0]
-        print(f'frame_id: {frame_id}')
-        labels = self.labels[frame_id].to(self.device)
-        return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2]
+        labels = self.labels[self.files[idx].split('/')[-1].split('.')[0]].to(self.device)
+        return self.transform(Image.open(self.files[idx])).to(self.device), labels[0], labels[1], labels[2]
 
 class skate_data_pretrain(Dataset):
     def __init__(self, data_paths, device, transform=nn.Identity()):
