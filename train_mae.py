@@ -44,6 +44,7 @@ if __name__ == '__main__':
     print(f'Batch size: {load_batch_size}')
     if args.pretrained_model_path is not None:
         model = torch.load(args.pretrained_model_path, map_location='cpu')
+        print(f"Loading encoder from {args.pretrained_model_path}")
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'pretrain-cls'))
     else:
         model = MAE_ViT()
