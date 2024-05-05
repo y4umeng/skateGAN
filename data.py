@@ -21,7 +21,7 @@ class skate_data(Dataset):
                 if count == 0: 
                     count += 1
                     continue
-                labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()) % 360.0, float(line[3].strip()) % 180.0], dtype=torch.long)
+                labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()) % 360.0, float(line[3].strip()) % 180.0])
 
         self.files = []
         self.labels = []
