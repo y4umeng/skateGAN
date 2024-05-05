@@ -33,8 +33,8 @@ if __name__ == '__main__':
     steps_per_update = batch_size // load_batch_size
 
     transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
-    train_dataset = skate_data_pretrain(['/content/drive/MyDrive/skatedata/batb1k/frames', '/content/drive/MyDrive/skatedata/batb1k/synthetic_frames'], device, transform=transform)
-    val_dataset = skate_data_pretrain(['/content/drive/MyDrive/skatedata/batb1k/val'], device, transform=transform)
+    train_dataset = skate_data_pretrain(['data/batb1k/frames', 'data/batb1k/synthetic_frames'], device, transform=transform)
+    val_dataset = skate_data_pretrain(['data/batb1k/val'], device, transform=transform)
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
     writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skatemae-pretrain'))
 
