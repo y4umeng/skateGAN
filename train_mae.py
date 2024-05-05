@@ -63,24 +63,25 @@ if __name__ == '__main__':
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
-        model.train()
-        losses = []
-        acces = []
-        for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
-            step_count += 1
-            dist_logits, elev_logits, azim_logits = model(img)
-            loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
-            acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
-            loss.backward()
-            if step_count % steps_per_update == 0:
-                optim.step()
-                optim.zero_grad()
-            losses.append(loss.item())
-            acces.append(acc.item())
-        lr_scheduler.step()
-        avg_train_loss = sum(losses) / len(losses)
-        avg_train_acc = sum(acces) / len(acces)
-        print(f'In epoch {e}, average training loss is {avg_train_loss}, average training acc is {avg_train_acc}.')
+        # model.train()
+        # losses = []
+        # acces = []
+        # for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
+        #     step_count += 1
+        #     dist_logits, elev_logits, azim_logits = model(img)
+        #     loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
+        #     acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
+        #     loss.backward()
+        #     if step_count % steps_per_update == 0:
+        #         optim.step()
+        #         optim.zero_grad()
+        #     losses.append(loss.item())
+        #     acces.append(acc.item())
+            
+        # lr_scheduler.step()
+        # avg_train_loss = sum(losses) / len(losses)
+        # avg_train_acc = sum(acces) / len(acces)
+        # print(f'In epoch {e}, average training loss is {avg_train_loss}, average training acc is {avg_train_acc}.')
 
         model.eval()
         with torch.no_grad():
