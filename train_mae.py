@@ -2,7 +2,6 @@ import os
 import argparse
 import math
 import torch
-import torchvision
 # from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
@@ -27,6 +26,9 @@ if __name__ == '__main__':
 
     setup_seed(args.seed)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    num_devices = torch.cuda.device_count() 
+    print(f"Device: {device}")
+    print(f"Num GPUs: {num_devices}")
 
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     val_dataset = skate_data('data/batb1k/val', 'data/batb1k/synthetic_frame_poses.csv', device, transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
-
+    print(f'Batch size: {load_batch_size}')
     if args.pretrained_model_path is not None:
         model = torch.load(args.pretrained_model_path, map_location='cpu')
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'pretrain-cls'))
@@ -57,6 +59,7 @@ if __name__ == '__main__':
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lr_func)
 
     best_val_acc = 0
+    best_val_loss = float('inf')
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
@@ -86,7 +89,7 @@ if __name__ == '__main__':
             acces = []
             for img, dist_label, elev_label, azim_label in tqdm(iter(val_dataloader)):
                 dist_preds, elev_preds, azim_preds = model(img)
-                loss = loss_fn(dist_preds, dist_label) + loss_fn(elev_preds, elev_label) + loss_fn(azim_preds, azim_label)
+                loss = loss_fn(dist_preds.squeeze(), dist_label) + loss_fn(elev_preds.squeeze(), elev_label) + loss_fn(azim_preds.squeeze(), azim_label)
                 acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
                 losses.append(loss.item())
                 acces.append(acc.item())
@@ -94,10 +97,10 @@ if __name__ == '__main__':
             avg_val_acc = sum(acces) / len(acces)
             print(f'In epoch {e}, average validation loss is {avg_val_loss}, average validation acc is {avg_val_acc}.')  
 
-        if avg_val_acc > best_val_acc:
-            best_val_acc = avg_val_acc
-            print(f'saving best model with acc {best_val_acc} at {e} epoch!')       
-            torch.save(model, f'{args.output_model_path}{e}_acc_{best_val_acc}.pt')
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            print(f'saving best model with val loss {best_val_loss} and acc {avg_val_acc} at {e} epoch!')       
+            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}.pt')
 
         # writer.add_scalars('cls/loss', {'train' : avg_train_loss, 'val' : avg_val_loss}, global_step=e)
         # writer.add_scalars('cls/acc', {'train' : avg_train_acc, 'val' : avg_val_acc}, global_step=e)
