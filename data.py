@@ -16,12 +16,12 @@ class skate_data(Dataset):
         with open(label_csv_path, 'r') as data:
             count = 0
             for line in csv.reader(data):
-                print(line)
-                if not count: continue # skip first line
+                if count == 0: continue # skip first line
                 self.labels[line[0]] = torch.tensor([line[1], line[2], line[3]])
                 print(f'{line[0]} : {self.labels[line[0]]}')
                 count += 1
                 if count == 10: break
+                print(count)
 
         print(f"{len(self.files)} files found at {data_path}")
 
