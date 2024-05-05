@@ -13,15 +13,7 @@ class skate_data(Dataset):
         self.device = device
         files = glob(path.join(data_path, "*.jpg"))
         frame_ids = [f.split('/')[-1].split('.')[0] for f in files]
-        self.files = []
-        self.frame_ids = []
-
-        for file, id in zip(files, frame_ids):
-            if '_' not in id:
-                self.files.append(file)
-                self.frame_ids.append(id)
-
-        self.labels = {}
+        labels = {}
         with open(label_csv_path, 'r') as data:
             count = 0
             for line in csv.reader(data):
@@ -29,7 +21,14 @@ class skate_data(Dataset):
                 if count == 0: 
                     count += 1
                     continue
-                self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()) % 360.0, float(line[3].strip()) % 360], dtype=torch.long)
+                labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()) % 360.0, float(line[3].strip()) % 360], dtype=torch.long)
+
+        self.files = []
+        self.labels = []
+        for file, id in zip(files, frame_ids):
+            if id.isnumeric() and id in labels:
+                self.files.append(file)
+                self.labels.append(labels[id])
 
         print(f"{len(self.files)} valid files found at {data_path}")
 
@@ -37,7 +36,7 @@ class skate_data(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        labels = self.labels[self.frame_ids[idx]].to(self.device)
+        labels = self.labels[idx].to(self.device)
         return self.transform(Image.open(self.files[idx])).to(self.device), labels[0], labels[1], labels[2]
 
 class skate_data_pretrain(Dataset):
