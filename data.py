@@ -29,7 +29,7 @@ class skate_data(Dataset):
                 if count == 0: 
                     count += 1
                     continue
-                self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()), float(line[3].strip())], dtype=torch.long)
+                self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()) % 360.0, float(line[3].strip()) % 360], dtype=torch.long)
 
         print(f"{len(self.files)} valid files found at {data_path}")
 
