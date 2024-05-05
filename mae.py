@@ -37,8 +37,8 @@ class PatchShuffle(torch.nn.Module):
 
 class MAE_Encoder(torch.nn.Module):
     def __init__(self,
-                 image_size=64,
-                 patch_size=4,
+                 image_size=32,
+                 patch_size=2,
                  emb_dim=192,
                  num_layer=12,
                  num_head=3,
@@ -79,8 +79,8 @@ class MAE_Encoder(torch.nn.Module):
 
 class MAE_Decoder(torch.nn.Module):
     def __init__(self,
-                 image_size=64,
-                 patch_size=4,
+                 image_size=32,
+                 patch_size=2,
                  emb_dim=192,
                  num_layer=4,
                  num_head=3,
@@ -124,8 +124,8 @@ class MAE_Decoder(torch.nn.Module):
 
 class MAE_ViT(torch.nn.Module):
     def __init__(self,
-                 image_size=64,
-                 patch_size=4,
+                 image_size=32,
+                 patch_size=2,
                  emb_dim=192,
                  encoder_layer=12,
                  encoder_head=3,

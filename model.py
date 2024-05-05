@@ -4,6 +4,29 @@ import torch.nn as nn
 from mae import *
 from utils import pose_generator
 
+class Skate_ViT_Classifier(torch.nn.Module):
+    def __init__(self, encoder : MAE_Encoder, num_classes_dist=100, num_classes_elev=360, num_classes_azim=360) -> None:
+        super().__init__()
+        self.cls_token = encoder.cls_token
+        self.pos_embedding = encoder.pos_embedding
+        self.patchify = encoder.patchify
+        self.transformer = encoder.transformer
+        self.layer_norm = encoder.layer_norm
+        self.dist_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_dist)
+        self.elev_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_elev)
+        self.azim_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_azim)
+    def forward(self, img):
+        patches = self.patchify(img)
+        patches = rearrange(patches, 'b c h w -> (h w) b c')
+        patches = patches + self.pos_embedding
+        patches = torch.cat([self.cls_token.expand(-1, patches.shape[1], -1), patches], dim=0)
+        patches = rearrange(patches, 't b c -> b t c')
+        features = self.layer_norm(self.transformer(patches))
+        features = rearrange(features, 'b t c -> t b c')
+        logits = self.head(features[0])
+        classes = torch.argmax(torch.nn.LogSoftmax(logits), dim=1)
+        return classes * 2.0
+
 class skateGAN(torch.nn.Module):
     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
         super().__init__()

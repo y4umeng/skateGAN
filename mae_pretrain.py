@@ -2,15 +2,13 @@ import os
 import argparse
 import math
 import torch
-import torchvision
 from torch.utils.tensorboard import SummaryWriter
-from torchvision import transforms
+from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
 
-from mae import *
+from model import *
 from utils import setup_seed
-
-#test
+from data import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -22,30 +20,25 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='vit-t-mae.pt') 
+    parser.add_argument('--model_path', type=str, default='skateMAE')
 
     args = parser.parse_args()
 
     setup_seed(args.seed)
-
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
 
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
-    preprocess = transforms.Compose([
-        transforms.Resize(64),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    train_dataset = torchvision.datasets.CIFAR10('data', train=True, download=True, transform=preprocess)
-    val_dataset = torchvision.datasets.CIFAR10('data', train=False, download=True, transform=preprocess)
-    dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    writer = SummaryWriter(os.path.join('logs', 'cifar10', 'mae-pretrain'))
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=64, patch_size=4).to(device)
-    # model = torch.nn.parallel.DistributedDataParallel(MAE_ViT)
+    transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
+    train_dataset = skate_data_pretrain(['/content/drive/MyDrive/skatedata/batb1k/frames', '/content/drive/MyDrive/skatedata/batb1k/synthetic_frames'], device, transform=transform)
+    val_dataset = skate_data_pretrain(['/content/drive/MyDrive/skatedata/batb1k/val'], device, transform=transform)
+    dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
+    writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skatemae-pretrain'))
+
+    model = MAE_ViT(mask_ratio=args.mask_ratio).to(device)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lr_func, verbose=True)
@@ -55,7 +48,7 @@ if __name__ == '__main__':
     for e in range(args.total_epoch):
         model.train()
         losses = []
-        for img, label in tqdm(iter(dataloader)):
+        for img in tqdm(iter(dataloader)):
             step_count += 1
             img = img.to(device)
             predicted_img, mask = model(img)
@@ -73,7 +66,7 @@ if __name__ == '__main__':
         ''' visualize the first 16 predicted images on val dataset'''
         model.eval()
         with torch.no_grad():
-            val_img = torch.stack([val_dataset[i][0] for i in range(16)])
+            val_img = torch.stack([val_dataset[i] for i in range(16)]) # [16, 3, 32, 32]
             val_img = val_img.to(device)
             predicted_val_img, mask = model(val_img)
             predicted_val_img = predicted_val_img * mask + val_img * (1 - mask)
@@ -82,6 +75,4 @@ if __name__ == '__main__':
             writer.add_image('mae_image', (img + 1) / 2, global_step=e)
         
         ''' save model '''
-        torch.save(model, args.model_path)
-        torch.save(model.encoder, 'encoder.pt')
-        torch.save(model.decoder, 'decoder.pt')
+        torch.save(model, f'{args.model_path}_EPOCH{e}')
