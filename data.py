@@ -12,7 +12,7 @@ class skate_data(Dataset):
         self.transform = transform
         self.device = device
         files = glob(path.join(data_path, "*.jpg"))
-        frame_ids = [f.split('/')[-1].split('.')[0] for f in self.files]
+        frame_ids = [f.split('/')[-1].split('.')[0] for f in files]
         self.files = []
         self.frame_ids = []
 
@@ -31,7 +31,7 @@ class skate_data(Dataset):
                     continue
                 self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*247.5), float(line[2].strip()), float(line[3].strip())], dtype=torch.long)
 
-        print(f"{len(self.files)} files found at {data_path}")
+        print(f"{len(self.files)} valid files found at {data_path}")
 
     def __len__(self):
         return len(self.files)
