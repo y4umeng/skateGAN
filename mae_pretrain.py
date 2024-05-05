@@ -75,13 +75,14 @@ if __name__ == '__main__':
         with torch.no_grad():
             val_img = torch.stack([val_dataset[i] for i in range(16)]) # [16, 3, 32, 32]
             val_img = val_img.to(device)
+            print(f"val img: {val_img.shape}")
             predicted_val_img, mask = model(val_img)
             predicted_val_img = predicted_val_img * mask + val_img * (1 - mask)
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
             # writer.add_image('mae_image', (img + 1) / 2, global_step=e)
             print(f"img shape: {img.shape}")
-            torchvision.utils.save_image(f"logs/val_epoch_{e}.jpg")
+            torchvision.utils.save_image(img, f"logs/val_epoch_{e}.jpg")
         
         ''' save model '''
         torch.save(model, f'{args.model_path}_EPOCH{e}')
