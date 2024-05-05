@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--total_epoch', type=int, default=100)
     parser.add_argument('--warmup_epoch', type=int, default=5)
     parser.add_argument('--pretrained_model_path', type=str, default=None)
-    parser.add_argument('--output_model_path', type=str, default='vit-t-classifier-from_scratch.pt')
+    parser.add_argument('--output_model_path', type=str, default='checkpoints/skateMAE_epoch_')
 
     args = parser.parse_args()
 
@@ -63,25 +63,25 @@ if __name__ == '__main__':
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
-        # model.train()
-        # losses = []
-        # acces = []
-        # for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
-        #     step_count += 1
-        #     dist_logits, elev_logits, azim_logits = model(img)
-        #     loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
-        #     acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
-        #     loss.backward()
-        #     if step_count % steps_per_update == 0:
-        #         optim.step()
-        #         optim.zero_grad()
-        #     losses.append(loss.item())
-        #     acces.append(acc.item())
+        model.train()
+        losses = []
+        acces = []
+        for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
+            step_count += 1
+            dist_logits, elev_logits, azim_logits = model(img)
+            loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
+            acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
+            loss.backward()
+            if step_count % steps_per_update == 0:
+                optim.step()
+                optim.zero_grad()
+            losses.append(loss.item())
+            acces.append(acc.item())
             
-        # lr_scheduler.step()
-        # avg_train_loss = sum(losses) / len(losses)
-        # avg_train_acc = sum(acces) / len(acces)
-        # print(f'In epoch {e}, average training loss is {avg_train_loss}, average training acc is {avg_train_acc}.')
+        lr_scheduler.step()
+        avg_train_loss = sum(losses) / len(losses)
+        avg_train_acc = sum(acces) / len(acces)
+        print(f'In epoch {e}, average training loss is {avg_train_loss}, average training acc is {avg_train_acc}.')
 
         model.eval()
         with torch.no_grad():
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         if avg_val_acc > best_val_acc:
             best_val_acc = avg_val_acc
             print(f'saving best model with acc {best_val_acc} at {e} epoch!')       
-            torch.save(model, args.output_model_path)
+            torch.save(model, f'{args.output_model_path}{e}_acc_{best_val_acc}.pt')
 
         # writer.add_scalars('cls/loss', {'train' : avg_train_loss, 'val' : avg_val_loss}, global_step=e)
         # writer.add_scalars('cls/acc', {'train' : avg_train_acc, 'val' : avg_val_acc}, global_step=e)
