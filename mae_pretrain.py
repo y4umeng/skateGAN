@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='skateMAE')
+    parser.add_argument('--model_path', type=str, default='skateMAE_pretrain')
 
     args = parser.parse_args()
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     train_dataset = skate_data_pretrain(['data/batb1k/frames', 'data/batb1k/synthetic_frames'], device, transform=transform)
     val_dataset = skate_data_pretrain(['data/batb1k/val'], device, transform=transform)
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skatemae-pretrain'))
+    writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
 
     model = MAE_ViT(mask_ratio=args.mask_ratio).to(device)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             losses.append(loss.item())
         lr_scheduler.step()
         avg_loss = sum(losses) / len(losses)
-        writer.add_scalar('mae_loss', avg_loss, global_step=e)
+        writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
         print(f'In epoch {e}, average traning loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
