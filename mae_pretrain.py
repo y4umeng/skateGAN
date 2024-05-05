@@ -2,6 +2,7 @@ import os
 import argparse
 import math
 import torch
+import torchvision
 # from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
     train_dataset = skate_data_pretrain(['data/batb1k/frames', 'data/batb1k/synthetic_frames'], device, transform=transform)
     val_dataset = skate_data_pretrain(['data/batb1k/val'], device, transform=transform)
+    print(f'Batch size {load_batch_size}')
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
     # writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
 
@@ -51,22 +53,22 @@ if __name__ == '__main__':
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
-        model.train()
-        losses = []
-        for img in tqdm(iter(dataloader)):
-            step_count += 1
-            img = img.to(device)
-            predicted_img, mask = model(img)
-            loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
-            loss.backward()
-            if step_count % steps_per_update == 0:
-                optim.step()
-                optim.zero_grad()
-            losses.append(loss.item())
-        lr_scheduler.step()
-        avg_loss = sum(losses) / len(losses)
-        # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
-        print(f'In epoch {e}, average traning loss is {avg_loss}.')
+        # model.train()
+        # losses = []
+        # for img in tqdm(iter(dataloader)):
+        #     step_count += 1
+        #     img = img.to(device)
+        #     predicted_img, mask = model(img)
+        #     loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
+        #     loss.backward()
+        #     if step_count % steps_per_update == 0:
+        #         optim.step()
+        #         optim.zero_grad()
+        #     losses.append(loss.item())
+        # lr_scheduler.step()
+        # avg_loss = sum(losses) / len(losses)
+        # # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
+        # print(f'In epoch {e}, average traning loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
         model.eval()
@@ -78,6 +80,8 @@ if __name__ == '__main__':
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
             # writer.add_image('mae_image', (img + 1) / 2, global_step=e)
+            print(f"img shape: {img.shape}")
+            torchvision.utils.save_image(f"logs/val_epoch_{e}.jpg")
         
         ''' save model '''
         torch.save(model, f'{args.model_path}_EPOCH{e}')
