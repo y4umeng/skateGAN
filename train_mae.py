@@ -47,13 +47,10 @@ if __name__ == '__main__':
         model = MAE_ViT()
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'scratch-cls'))
 
-    dist_classes = 100
-    elev_classes = 360
-    azim_classes = 180
-    model = skateMAE(model.encoder, dist_classes, elev_classes, azim_classes).to(device)
+    model = skateMAE(model.encoder, embed_dim=124).to(device)
 
     loss_fn = torch.nn.MSELoss()
-    acc_fn = lambda logit, label: torch.mean((logit == label).float())
+    acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())
 
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.999), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))
@@ -68,9 +65,9 @@ if __name__ == '__main__':
         acces = []
         for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
             step_count += 1
-            dist_logits, elev_logits, azim_logits = model(img)
-            loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
-            acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
+            dist_preds, elev_preds, azim_preds = model(img)
+            loss = loss_fn(dist_preds, dist_label) + loss_fn(elev_preds, elev_label) + loss_fn(azim_preds, azim_label)
+            acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             loss.backward()
             if step_count % steps_per_update == 0:
                 optim.step()
@@ -88,9 +85,9 @@ if __name__ == '__main__':
             losses = []
             acces = []
             for img, dist_label, elev_label, azim_label in tqdm(iter(val_dataloader)):
-                dist_logits, elev_logits, azim_logits = model(img)
-                loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
-                acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
+                dist_preds, elev_preds, azim_preds = model(img)
+                loss = loss_fn(dist_preds, dist_label) + loss_fn(elev_preds, elev_label) + loss_fn(azim_preds, azim_label)
+                acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
                 losses.append(loss.item())
                 acces.append(acc.item())
             avg_val_loss = sum(losses) / len(losses)

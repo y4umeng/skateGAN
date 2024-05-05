@@ -5,16 +5,14 @@ from mae import *
 from utils import *
 
 class skateMAE(torch.nn.Module):
-    def __init__(self, encoder : MAE_Encoder, num_classes_dist=100, num_classes_elev=360, num_classes_azim=180) -> None:
+    def __init__(self, encoder : MAE_Encoder, embed_dim : int) -> None:
         super().__init__()
         self.cls_token = encoder.cls_token
         self.pos_embedding = encoder.pos_embedding
         self.patchify = encoder.patchify
         self.transformer = encoder.transformer
         self.layer_norm = encoder.layer_norm
-        self.dist_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_dist)
-        self.elev_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_elev)
-        self.azim_head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes_azim)
+        self.heads = [nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1))] * 3
     def forward(self, img):
         patches = self.patchify(img)
         patches = rearrange(patches, 'b c h w -> (h w) b c')
@@ -23,10 +21,7 @@ class skateMAE(torch.nn.Module):
         patches = rearrange(patches, 't b c -> b t c')
         features = self.layer_norm(self.transformer(patches))
         features = rearrange(features, 'b t c -> t b c')
-        dists = self.dist_head(features[0])
-        elevs = self.elev_head(features[0])
-        azims = self.azim_head(features[0])
-        return dists.argmax(dim=-1), elevs.argmax(dim=-1), azims.argmax(dim=-1)
+        return tuple([head(features[0]) for head in self.heads])
 
 # class skateGAN(torch.nn.Module):
 #     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
