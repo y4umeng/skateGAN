@@ -49,11 +49,11 @@ if __name__ == '__main__':
 
     dist_classes = 100
     elev_classes = 360
-    azim_classes = 360
+    azim_classes = 180
     model = skateMAE(model.encoder, dist_classes, elev_classes, azim_classes).to(device)
 
-    loss_fn = torch.nn.CrossEntropyLoss()
-    acc_fn = lambda logit, label: torch.mean((logit.argmax(dim=-1) == label).float())
+    loss_fn = torch.nn.MSELoss()
+    acc_fn = lambda logit, label: torch.mean((logit == label).float())
 
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.999), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))

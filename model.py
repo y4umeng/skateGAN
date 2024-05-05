@@ -5,7 +5,7 @@ from mae import *
 from utils import *
 
 class skateMAE(torch.nn.Module):
-    def __init__(self, encoder : MAE_Encoder, num_classes_dist=100, num_classes_elev=360, num_classes_azim=360) -> None:
+    def __init__(self, encoder : MAE_Encoder, num_classes_dist=100, num_classes_elev=360, num_classes_azim=180) -> None:
         super().__init__()
         self.cls_token = encoder.cls_token
         self.pos_embedding = encoder.pos_embedding
@@ -23,10 +23,10 @@ class skateMAE(torch.nn.Module):
         patches = rearrange(patches, 't b c -> b t c')
         features = self.layer_norm(self.transformer(patches))
         features = rearrange(features, 'b t c -> t b c')
-        dist_logits = self.dist_head(features[0])
-        elev_logits = self.elev_head(features[0])
-        azim_logits = self.azim_head(features[0])
-        return dist_logits, elev_logits, azim_logits
+        dists = self.dist_head(features[0])
+        elevs = self.elev_head(features[0])
+        azims = self.azim_head(features[0])
+        return dists.argmax(dim=-1), elevs.argmax(dim=-1), azims.argmax(dim=-1)
 
 # class skateGAN(torch.nn.Module):
 #     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
