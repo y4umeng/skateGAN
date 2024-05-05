@@ -16,16 +16,11 @@ class skate_data(Dataset):
         with open(label_csv_path, 'r') as data:
             count = 0
             for line in csv.reader(data):
-                print(count)
                 # skip first line
                 if count == 0: 
                     count += 1
                     continue
                 self.labels[line[0]] = torch.tensor([float(line[1]), float(line[2]), float(line[3])])
-                print(f'{line[0]} : {self.labels[line[0]]}')
-                count += 1
-                if count == 10: break
-                print(count)
 
         print(f"{len(self.files)} files found at {data_path}")
 
@@ -33,7 +28,10 @@ class skate_data(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        pass
+        frame_id = self.files[idx].split('/')[-1].split('.')[0]
+        print(f'frame_id: {frame_id}')
+        labels = self.labels[frame_id].to(self.device)
+        return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2]
 
 class skate_data_pretrain(Dataset):
     def __init__(self, data_paths, device, transform=nn.Identity()):
