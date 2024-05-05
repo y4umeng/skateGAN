@@ -17,7 +17,9 @@ class skate_data(Dataset):
             count = 0
             for line in csv.reader(data):
                 print(count)
-                if count == 0: continue # skip first line
+                if count == 0: 
+                    count += 1
+                    continue # skip first line
                 self.labels[line[0]] = torch.tensor([line[1], line[2], line[3]])
                 print(f'{line[0]} : {self.labels[line[0]]}')
                 count += 1
