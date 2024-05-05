@@ -4,7 +4,7 @@ import torch.nn as nn
 from mae import *
 from utils import pose_generator
 
-class Skate_ViT_Classifier(torch.nn.Module):
+class skateMAE(torch.nn.Module):
     def __init__(self, encoder : MAE_Encoder, num_classes_dist=100, num_classes_elev=360, num_classes_azim=360) -> None:
         super().__init__()
         self.cls_token = encoder.cls_token

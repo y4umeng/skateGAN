@@ -63,7 +63,7 @@ class MAE_Encoder(torch.nn.Module):
         trunc_normal_(self.pos_embedding, std=.02)
 
     def forward(self, img):
-        print(img.device)
+        # print(img.device)
         patches = self.patchify(img)
         patches = rearrange(patches, 'b c h w -> (h w) b c')
         patches = patches + self.pos_embedding
