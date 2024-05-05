@@ -20,7 +20,7 @@ class skate_data(Dataset):
                 if count == 0: 
                     count += 1
                     continue
-                self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*250), int(line[2].strip()), int(line[3].strip())])
+                self.labels[line[0]] = torch.tensor([round((float(line[1].strip()) - 0.5)*250), float(line[2].strip()), float(line[3].strip())])
 
         print(f"{len(self.files)} files found at {data_path}")
 
