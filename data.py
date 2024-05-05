@@ -4,25 +4,28 @@ from glob import glob
 from os import path
 from PIL import Image
 import torch.nn as nn
+import torch
 import csv
 
 class skate_data(Dataset):
     def __init__(self, data_path, label_csv_path, device, transform):
         self.transform = transform
         self.device = device
-        self.files = sorted(glob(path.join(data_path, "*.jpg")))
+        self.files = glob(path.join(data_path, "*.jpg"))
         self.labels = {}
         with open(label_csv_path, 'r') as data:
             count = 0
             for line in csv.reader(data):
-                print(line)
+                if not count: continue # skip first line
+                self.labels[line[0]] = torch.tensor([line[1], line[2], line[3]])
+                print(f'{line[0]} : {self.labels[line[0]]}')
                 count += 1
                 if count == 10: break
 
         print(f"{len(self.data)} files found at {data_path}")
 
     def __len__(self):
-        return len(self.data)
+        return len(self.files)
 
     def __getitem__(self, idx):
         pass
