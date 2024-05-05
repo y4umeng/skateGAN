@@ -2,7 +2,7 @@ import os
 import argparse
 import math
 import torch
-# from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     train_dataset = skate_data_pretrain(['data/batb1k/frames', 'data/batb1k/synthetic_frames'], device, transform=transform)
     val_dataset = skate_data_pretrain(['data/batb1k/val'], device, transform=transform)
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    # writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
+    writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
 
     model = MAE_ViT(mask_ratio=args.mask_ratio).to(device)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             losses.append(loss.item())
         lr_scheduler.step()
         avg_loss = sum(losses) / len(losses)
-        # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
+        writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
         print(f'In epoch {e}, average traning loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
@@ -72,7 +72,7 @@ if __name__ == '__main__':
             predicted_val_img = predicted_val_img * mask + val_img * (1 - mask)
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
-            # writer.add_image('mae_image', (img + 1) / 2, global_step=e)
+            writer.add_image('mae_image', (img + 1) / 2, global_step=e)
         
         ''' save model '''
         torch.save(model, f'{args.model_path}_EPOCH{e}')
