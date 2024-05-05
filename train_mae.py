@@ -75,6 +75,7 @@ if __name__ == '__main__':
 
             step_count += 1
             dist_preds, elev_preds, azim_preds = model(img)
+            
             loss = loss_fn(dist_preds.squeeze(), dist_label) + loss_fn(elev_preds.squeeze(), elev_label) + loss_fn(azim_preds.squeeze(), azim_label)
             acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             loss.backward()

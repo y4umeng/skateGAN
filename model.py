@@ -24,7 +24,10 @@ class skateMAE(torch.nn.Module):
         patches = rearrange(patches, 't b c -> b t c')
         features = self.layer_norm(self.transformer(patches))
         features = rearrange(features, 'b t c -> t b c')
-        return tuple([head(features[0]) for head in self.heads])
+        dist_pred = self.dist_head(features[0]) * 100
+        elev_pred = self.elev_head(features[0]) * 360
+        azim_pred = self.azim_head(features[0]) * 180
+        return dist_pred, elev_pred, azim_pred
 
 # class skateGAN(torch.nn.Module):
 #     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
