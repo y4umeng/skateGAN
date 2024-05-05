@@ -26,8 +26,9 @@ if __name__ == '__main__':
 
     setup_seed(args.seed)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    num_devices = torch.cuda.device_count() 
     print(f"DEVICE: {device}")
-    print(f"Num devices: {torch.cuda.device_count()}")
+    print(f"Num devices: {num_devices}")
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
 
@@ -41,6 +42,8 @@ if __name__ == '__main__':
     # writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
 
     model = MAE_ViT(mask_ratio=args.mask_ratio).to(device)
+    if num_devices > 1:
+        model = nn.DataParallel(model)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lr_func)
