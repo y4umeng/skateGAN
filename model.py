@@ -12,7 +12,10 @@ class skateMAE(torch.nn.Module):
         self.patchify = encoder.patchify
         self.transformer = encoder.transformer
         self.layer_norm = encoder.layer_norm
-        self.heads = [nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1))] * 3
+        self.dist_head = nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1))
+        self.elev_head = nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1))
+        self.azim_head = nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1)) 
+        self.heads = [self.dist_head, self.elev_head, self.azim_head]
     def forward(self, img):
         patches = self.patchify(img)
         patches = rearrange(patches, 'b c h w -> (h w) b c')
