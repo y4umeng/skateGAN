@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='skateMAE_pretrain')
+    parser.add_argument('--model_path', type=str, default='checkpoints/skateMAE_pretrain')
 
     args = parser.parse_args()
 
@@ -53,22 +53,22 @@ if __name__ == '__main__':
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
-        # model.train()
-        # losses = []
-        # for img in tqdm(iter(dataloader)):
-        #     step_count += 1
-        #     img = img.to(device)
-        #     predicted_img, mask = model(img)
-        #     loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
-        #     loss.backward()
-        #     if step_count % steps_per_update == 0:
-        #         optim.step()
-        #         optim.zero_grad()
-        #     losses.append(loss.item())
-        # lr_scheduler.step()
-        # avg_loss = sum(losses) / len(losses)
-        # # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
-        # print(f'In epoch {e}, average traning loss is {avg_loss}.')
+        model.train()
+        losses = []
+        for img in tqdm(iter(dataloader)):
+            step_count += 1
+            img = img.to(device)
+            predicted_img, mask = model(img)
+            loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
+            loss.backward()
+            if step_count % steps_per_update == 0:
+                optim.step()
+                optim.zero_grad()
+            losses.append(loss.item())
+        lr_scheduler.step()
+        avg_loss = sum(losses) / len(losses)
+        # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
+        print(f'In epoch {e}, average traning loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
         model.eval()
@@ -87,4 +87,4 @@ if __name__ == '__main__':
             torchvision.utils.save_image(img, f"logs/val_epoch_{e}.jpg")
         
         ''' save model '''
-        torch.save(model, f'{args.model_path}_EPOCH{e}')
+        torch.save(model, f'{args.model_path}_EPOCH{e}.pt')
