@@ -72,6 +72,7 @@ if __name__ == '__main__':
             print(f"dist: {dist_logits.shape}")
             print(f"elev: {elev_logits.shape}")
             print(f"azim: {azim_logits.shape}")
+            print(dist_label.max())
             loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(dist_logits, azim_label)
             acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
             loss.backward()
