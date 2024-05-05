@@ -36,8 +36,8 @@ class skate_data(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        labels = self.labels[idx].to(self.device)
-        return self.transform(Image.open(self.files[idx])).to(self.device), labels[0], labels[1], labels[2]
+        labels = self.labels[idx]
+        return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2]
 
 class skate_data_pretrain(Dataset):
     def __init__(self, data_paths, device, transform=nn.Identity()):
