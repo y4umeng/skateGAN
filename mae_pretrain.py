@@ -27,6 +27,7 @@ if __name__ == '__main__':
     setup_seed(args.seed)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"DEVICE: {device}")
+    print(f"Num devices: {torch.cuda.device_count()}")
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
 
