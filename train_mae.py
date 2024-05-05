@@ -89,7 +89,7 @@ if __name__ == '__main__':
             acces = []
             for img, dist_label, elev_label, azim_label in tqdm(iter(val_dataloader)):
                 dist_logits, elev_logits, azim_logits = model(img)
-                loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(dist_logits, azim_label)
+                loss = loss_fn(dist_logits, dist_label) + loss_fn(elev_logits, elev_label) + loss_fn(azim_logits, azim_label)
                 acc = torch.mean(torch.stack((acc_fn(dist_logits, dist_label), acc_fn(elev_logits, elev_label), acc_fn(azim_logits, azim_label))))
                 losses.append(loss.item())
                 acces.append(acc.item())
