@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from model import *
 from utils import setup_seed
+from data import skate_data
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -33,10 +34,11 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
 
-    train_dataset = torchvision.datasets.CIFAR10('data', train=True, download=True, transform=Compose([ToTensor(), Normalize(0.5, 0.5)]))
-    val_dataset = torchvision.datasets.CIFAR10('data', train=False, download=True, transform=Compose([ToTensor(), Normalize(0.5, 0.5)]))
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=4)
+    transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
+    train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses.csv', device, transform)
+    val_dataset = skate_data('data/batb1k/val', 'data/batb1k/synthetic_frame_poses.csv', device, transform)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
 
     if args.pretrained_model_path is not None:
         model = torch.load(args.pretrained_model_path, map_location='cpu')

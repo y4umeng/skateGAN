@@ -1,4 +1,3 @@
-import os
 import argparse
 import math
 import torch
@@ -68,7 +67,7 @@ if __name__ == '__main__':
         lr_scheduler.step()
         avg_loss = sum(losses) / len(losses)
         # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
-        print(f'In epoch {e}, average traning loss is {avg_loss}.')
+        print(f'In epoch {e}, average training loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
         model.eval()

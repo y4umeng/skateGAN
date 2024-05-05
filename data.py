@@ -4,13 +4,21 @@ from glob import glob
 from os import path
 from PIL import Image
 import torch.nn as nn
+import csv
 
 class skate_data(Dataset):
-    def __init__(self, data_path, label_path, device, transform):
+    def __init__(self, data_path, label_csv_path, device, transform):
         self.transform = transform
         self.device = device
-        self.data = []
-        if len(self.data) != len(self.labels): raise ValueError("The number of validation or testing images and labels do not match.")
+        self.files = sorted(glob(path.join(data_path), "*.jpg"))
+        self.labels = {}
+        with open(label_csv_path, 'r') as data:
+            count = 0
+            for line in csv.reader(data):
+                print(line)
+                count += 1
+                if count == 10: break
+
         print(f"{len(self.data)} files found at {data_path}")
 
     def __len__(self):
@@ -32,4 +40,4 @@ class skate_data_pretrain(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
-        return self.transform(Image.open(self.files[idx])) #.to(self.device)
+        return self.transform(Image.open(self.files[idx])).to(self.device)

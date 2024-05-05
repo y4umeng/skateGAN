@@ -23,9 +23,10 @@ class skateMAE(torch.nn.Module):
         patches = rearrange(patches, 't b c -> b t c')
         features = self.layer_norm(self.transformer(patches))
         features = rearrange(features, 'b t c -> t b c')
-        logits = self.head(features[0])
-        classes = torch.argmax(torch.nn.LogSoftmax(logits), dim=1)
-        return classes * 2.0
+        dist_logits = self.dist_head(features[0])
+        elev_logits = self.elev_head(features[0])
+        azim_logits = self.azim_head(features[0])
+        return dist_logits, elev_logits, azim_logits
 
 # class skateGAN(torch.nn.Module):
 #     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
