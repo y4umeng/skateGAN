@@ -22,7 +22,7 @@ class skate_data(Dataset):
                 count += 1
                 if count == 10: break
 
-        print(f"{len(self.data)} files found at {data_path}")
+        print(f"{len(self.files)} files found at {data_path}")
 
     def __len__(self):
         return len(self.files)
