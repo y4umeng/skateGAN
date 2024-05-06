@@ -19,8 +19,6 @@ class binary_erosion(object):
         self.conv.weight = torch.nn.Parameter(torch.tensor([[0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0, 0.0]]).unsqueeze(0).unsqueeze(0))
     def __call__(self, mask, iterations):
         mask = mask.unsqueeze(0)
-        print(f'mask shape: {mask.shape}')
-        
         for _ in range(iterations):
             mask = self.conv(mask.float()) >= 2.0
         return mask
@@ -43,10 +41,6 @@ class Add_Legs(object):
         mask = mask == 0.0
         legs = legs[:3,...] / 255.0
         mask = self.erosion(mask, 6).squeeze(0)
-        # print(f'Mask: {mask.shape}')
-        # print(f'Image: {img.shape}')
-        # print(f'Legs: {legs.shape}')
-
         return img * mask + legs
     def __repr__(self):
         return "adding random legs augmentation"

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_device_batch_size', type=int, default=256)
     parser.add_argument('--base_learning_rate', type=float, default=1e-3)
     parser.add_argument('--weight_decay', type=float, default=0.05)
-    parser.add_argument('--total_epoch', type=int, default=100)
+    parser.add_argument('--total_epoch', type=int, default=1000)
     parser.add_argument('--warmup_epoch', type=int, default=5)
     parser.add_argument('--pretrained_encoder_path', type=str, default=None)
     parser.add_argument('--model_path', type=str, default=None) 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
             step_count += 1
             dist_preds, elev_preds, azim_preds = model(img)
-            raise ValueError()
+            
             loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
                     loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
                     loss_fn(azim_preds.squeeze(), azim_label) * weights[2]
@@ -131,7 +131,7 @@ if __name__ == '__main__':
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             print(f'saving best model with val loss {best_val_loss} and acc {avg_val_acc} at {e} epoch!')       
-            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}_TRANSLATIONS.pt')
+            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}_WITHLEGS.pt')
 
         # writer.add_scalars('cls/loss', {'train' : avg_train_loss, 'val' : avg_val_loss}, global_step=e)
         # writer.add_scalars('cls/acc', {'train' : avg_train_acc, 'val' : avg_val_acc}, global_step=e)
