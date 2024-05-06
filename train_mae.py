@@ -38,7 +38,7 @@ if __name__ == '__main__':
     steps_per_update = batch_size // load_batch_size
 
     train_transform = Compose([ToTensor(), 
-                               Add_Legs('data/batb1k/leg_masks'), 
+                            #    Add_Legs('data/batb1k/leg_masks'), 
                                RandomAffine(degrees=0, translate=(0.3,0.3)), 
                                ColorJitter(0.3, 0.3, 0.3), 
                                Normalize(0.5, 0.5)])
