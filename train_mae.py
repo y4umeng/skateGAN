@@ -67,7 +67,7 @@ if __name__ == '__main__':
         model.train()
         losses = []
         acces = []
-        for img, dist_label, elev_label, azim_label in tqdm(iter(train_dataloader)):
+        for img, dist_label, elev_label, azim_label, _ in tqdm(iter(train_dataloader)):
             img = img.to(device)
             dist_label = dist_label.to(device)
             elev_label = elev_label.to(device)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         with torch.no_grad():
             losses = []
             acces = []
-            for img, dist_label, elev_label, azim_label in tqdm(iter(val_dataloader)):
+            for img, dist_label, elev_label, azim_label, _ in tqdm(iter(val_dataloader)):
                 img = img.to(device)
                 dist_label = dist_label.to(device)
                 elev_label = elev_label.to(device)
