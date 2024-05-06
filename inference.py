@@ -43,18 +43,17 @@ if __name__ == '__main__':
         frame = transform(Image.open(frame_paths[fp]))
         frames[fp,...] = frame
         print(fp, frame.shape)
-
-    frames = frames.to(device)
     print(f"Frames shape: {frames.shape}")
+    frames = frames.to(device)
 
-    # model = torch.load(args.model_path, map_location=device)
-    # # model = model.to(device)
+    model = torch.load(args.model_path, map_location=device)
+    # model = model.to(device)
 
-    # model.eval()
-    # with torch.no_grad():
-    #     all_data = []
-    #     dist_preds, elev_preds, azim_preds = model(frames)
-    #     all_data.append([id[0], dist_preds[0], elev_preds[0], azim_preds[0]])
-    #     print(all_data[-1])
+    model.eval()
+    with torch.no_grad():
+        dist_preds, elev_preds, azim_preds = model(frames)
+        all_data = torch.stack((dist_preds, elev_preds, azim_preds), dim=1)
+        print(f"Final data shape: {all_data.shape}")
+        torch.save(all_data.cpu(), f"inference/clip_{args.clip_id}_predictions.pt")
        
 
