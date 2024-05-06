@@ -29,14 +29,6 @@ if __name__ == '__main__':
     num_devices = torch.cuda.device_count() 
     print(f"Device: {device}")
     print(f"Num GPUs: {num_devices}")
-    print("torch.cuda.memory_allocated: %fGB"%(torch.cuda.memory_allocated(0)/1024/1024/1024))
-    print("torch.cuda.memory_reserved: %fGB"%(torch.cuda.memory_reserved(0)/1024/1024/1024))
-    print("torch.cuda.max_memory_reserved: %fGB"%(torch.cuda.max_memory_reserved(0)/1024/1024/1024))
-    torch.cuda.empty_cache()
-    print("torch.cuda.memory_allocated: %fGB"%(torch.cuda.memory_allocated(0)/1024/1024/1024))
-    print("torch.cuda.memory_reserved: %fGB"%(torch.cuda.memory_reserved(0)/1024/1024/1024))
-    print("torch.cuda.max_memory_reserved: %fGB"%(torch.cuda.max_memory_reserved(0)/1024/1024/1024))
-
 
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
@@ -61,12 +53,13 @@ if __name__ == '__main__':
     model = skateMAE(model.encoder, embed_dim=124).to(device)
 
     loss_fn = torch.nn.MSELoss()
+    weights = torch.tensor([10.0, 1.0, 1.0], device=device)
     acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())
 
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.999), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lr_func)
-
+    
     best_val_acc = 0
     best_val_loss = float('inf')
     step_count = 0
@@ -83,9 +76,9 @@ if __name__ == '__main__':
 
             step_count += 1
             dist_preds, elev_preds, azim_preds = model(img)
-            loss =  loss_fn(dist_preds.squeeze(), dist_label) + \
-                    loss_fn(elev_preds.squeeze(), elev_label) + \
-                    loss_fn(azim_preds.squeeze(), azim_label)
+            loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
+                    loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
+                    loss_fn(azim_preds.squeeze(), azim_label) * weights[2]
             acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             loss.backward()
             if step_count % steps_per_update == 0:
@@ -109,7 +102,9 @@ if __name__ == '__main__':
                 elev_label = elev_label.to(device)
                 azim_label = azim_label.to(device)
                 dist_preds, elev_preds, azim_preds = model(img)
-                loss = loss_fn(dist_preds.squeeze(), dist_label) + loss_fn(elev_preds.squeeze(), elev_label) + loss_fn(azim_preds.squeeze(), azim_label)
+                loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
+                    loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
+                    loss_fn(azim_preds.squeeze(), azim_label) * weights[2] 
                 acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
                 losses.append(loss.item())
                 acces.append(acc.item())

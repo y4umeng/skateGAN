@@ -26,6 +26,5 @@
 # For example, setup intel MPI environment
 source .venv/bin/activate
 
-# Go to the job submission directory and run your application
-cd $HOME/apps/slurm
+# Run your application
 python train_mae.py --batch_size 128 --pretrained_model_path checkpoints/skateMAE_BEST_PRETRAINED_e549.pt
