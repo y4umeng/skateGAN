@@ -54,6 +54,6 @@ if __name__ == '__main__':
         dist_preds, elev_preds, azim_preds = model(frames)
         all_data = torch.stack((dist_preds, elev_preds, azim_preds), dim=1)
         print(f"Final data shape: {all_data.shape}")
-        torch.save(all_data.cpu(), f"inference/clip_{args.clip_id}_predictions.pt")
-        
+        torch.save(all_data.cpu(), f"inference/clip_{args.clip_id}_predictions_WITHLEGS.pt")
+
 
