@@ -45,7 +45,7 @@ if __name__ == '__main__':
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
     print(f'Batch size: {load_batch_size}')
     if args.model_path is not None:
-        model = torch.load(args.model_path)
+        model = torch.load(args.model_path).to(device)
         print(f"Loading pretrained model from {args.model_path}")
     elif args.pretrained_encoder_path is not None:
         model = torch.load(args.pretrained_encoder_path, map_location='cpu')
