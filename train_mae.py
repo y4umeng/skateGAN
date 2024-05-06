@@ -45,7 +45,8 @@ if __name__ == '__main__':
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
     print(f'Batch size: {load_batch_size}')
     if args.model_path is not None:
-        model = torch.load(args.model_path).to(device)
+        model = torch.load(args.model_path, map_location=device)
+        model = model.to(device)
         print(f"Loading pretrained model from {args.model_path}")
     elif args.pretrained_encoder_path is not None:
         model = torch.load(args.pretrained_encoder_path, map_location='cpu')
@@ -56,8 +57,8 @@ if __name__ == '__main__':
         model = skateMAE(MAE_ViT().encoder, embed_dim=124).to(device)
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'scratch-cls'))
 
-    if num_devices > 1:
-        model = nn.DataParallel(model)
+    # if num_devices > 1:
+    #     model = nn.DataParallel(model)
 
     loss_fn = torch.nn.MSELoss()
     weights = torch.tensor([10.0, 1.0, 1.0], device=device)
