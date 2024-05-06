@@ -58,6 +58,7 @@ if __name__ == '__main__':
             losses.append(loss.detach().item())
             acces.append(acc.item())
             all_data.append([id[0], dist_label[0], elev_label[0], azim_label[0], dist_preds[0], elev_preds[0], azim_preds[0]])
+            print(all_data[-1])
         avg_val_loss = sum(losses) / len(losses)
         avg_val_acc = sum(acces) / len(acces)
         print(f'Average test loss is {avg_val_loss}, average test acc is {avg_val_acc}.')  
