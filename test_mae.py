@@ -36,8 +36,8 @@ if __name__ == '__main__':
     test_dataloader = torch.utils.data.DataLoader(test_dataset, load_batch_size, shuffle=False, num_workers=2)
     
     print(f'Batch size: {load_batch_size}')
-    model = torch.load(args.model_path, map_location='cpu')
-    model = model.to(device)
+    model = torch.load(args.model_path, map_location=device)
+    # model = model.to(device)
 
     loss_fn = torch.nn.MSELoss()
     acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())
