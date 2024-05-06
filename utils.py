@@ -42,7 +42,7 @@ class Add_Legs(object):
         mask = legs[3,...].unsqueeze(0)
         mask = mask == 0.0
         legs = legs[:3,...] / 255.0
-        mask = self.erosion(mask, 6)
+        mask = self.erosion(mask, 6).squeeze(0)
         print(f'Mask: {mask.shape}')
         print(f'Image: {img.shape}')
         print(f'Legs: {legs.shape}')
