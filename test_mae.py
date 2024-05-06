@@ -46,7 +46,8 @@ if __name__ == '__main__':
     with torch.no_grad():
         losses = []
         acces = []
-        for img, dist_label, elev_label, azim_label in tqdm(iter(test_dataloader)):
+
+        for img, dist_label, elev_label, azim_label, id in tqdm(iter(test_dataloader)):
             img = img.to(device)
             dist_label = dist_label.to(device)
             elev_label = elev_label.to(device)

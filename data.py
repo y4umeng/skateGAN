@@ -25,10 +25,12 @@ class skate_data(Dataset):
 
         self.files = []
         self.labels = []
+        self.ids = []
         for file, id in zip(files, frame_ids):
             if id.isnumeric() and id in labels:
                 self.files.append(file)
                 self.labels.append(labels[id])
+                self.ids.append(int(id))
 
         print(f"{len(self.files)} valid files found at {data_path}")
 
