@@ -46,7 +46,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         losses = []
         acces = []
-
+        all_data = []
         for img, dist_label, elev_label, azim_label, id in tqdm(iter(test_dataloader)):
             img = img.to(device)
             dist_label = dist_label.to(device)
@@ -57,6 +57,7 @@ if __name__ == '__main__':
             acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             losses.append(loss.detach().item())
             acces.append(acc.item())
+            all_data.append([id[0], dist_label[0], elev_label[0], azim_label[0], dist_preds[0], elev_preds[0], azim_preds[0]])
         avg_val_loss = sum(losses) / len(losses)
         avg_val_acc = sum(acces) / len(acces)
         print(f'Average test loss is {avg_val_loss}, average test acc is {avg_val_acc}.')  
