@@ -8,13 +8,14 @@ from tqdm import tqdm
 from model import *
 from utils import setup_seed
 from data import skate_data
+# python test_mae --model_path #SBATCH -N 1 -n 4 --gres=gpu:1
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--max_device_batch_size', type=int, default=256)
-    parser.add_argument('--model_path', type=str, default='checkpoints/skateMAE_epoch_')
+    parser.add_argument('--model_path', type=str, default='')
 
     args = parser.parse_args()
 
@@ -53,7 +54,7 @@ if __name__ == '__main__':
             dist_preds, elev_preds, azim_preds = model(img)
             loss = loss_fn(dist_preds.squeeze(), dist_label) + loss_fn(elev_preds.squeeze(), elev_label) + loss_fn(azim_preds.squeeze(), azim_label)
             acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
-            losses.append(loss.item())
+            losses.append(loss.detach().item())
             acces.append(acc.item())
         avg_val_loss = sum(losses) / len(losses)
         avg_val_acc = sum(acces) / len(acces)
