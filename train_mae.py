@@ -89,6 +89,7 @@ if __name__ == '__main__':
 
             step_count += 1
             dist_preds, elev_preds, azim_preds = model(img)
+            raise ValueError()
             loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
                     loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
                     loss_fn(azim_preds.squeeze(), azim_label) * weights[2]
