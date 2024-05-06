@@ -29,9 +29,10 @@ if __name__ == '__main__':
     
     files = glob('data/batb1k/frames')
     frame_paths = {}
-    
+    print(f'Num files: {len(files)}')
     for f in files:
         splt = f.split('/')[-1].split('.')[0].split('_')
+        print(splt)
         if args.clip_id == splt[0]:
             frame_paths[int(splt[-1])] = f
     
@@ -43,7 +44,7 @@ if __name__ == '__main__':
         frames[i,...] = frame
 
     frames = frames.to(device)
-    print(f"Frames shape: ")
+    print(f"Frames shape: {frames.shape}")
 
     # model = torch.load(args.model_path, map_location=device)
     # # model = model.to(device)
