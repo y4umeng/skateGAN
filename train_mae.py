@@ -3,12 +3,12 @@ import math
 import time
 import torch
 # from torch.utils.tensorboard import SummaryWriter
-from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
 
 from model import *
 from utils import setup_seed
 from data import skate_data
+from torchvision.transforms import v2
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -19,7 +19,8 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay', type=float, default=0.05)
     parser.add_argument('--total_epoch', type=int, default=100)
     parser.add_argument('--warmup_epoch', type=int, default=5)
-    parser.add_argument('--pretrained_model_path', type=str, default=None)
+    parser.add_argument('--pretrained_encoder_path', type=str, default=None)
+    parser.add_argument('--model_path', type=str, default=None) 
     parser.add_argument('--output_model_path', type=str, default='checkpoints/skateMAE_epoch_')
 
     args = parser.parse_args()
@@ -36,21 +37,25 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
 
-    transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
-    train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses_FIXED.csv', device, transform)
-    val_dataset = skate_data('data/batb1k/test_synthetic_frames', 'data/batb1k/test_synthetic_frame_poses_FIXED.csv', device, transform)
+    train_transform = v2.Compose([v2.ToTensor(), v2.ColorJitter(0.3, 0.3, 0.3), v2.GaussianBlur(3), v2.Normalize(0.5, 0.5), v2.RandomErasing(0.7)])
+    val_transform = v2.Compose([v2.ToTensor(), v2.Normalize(0.5, 0.5)])
+    train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses_FIXED.csv', device, train_transform)
+    val_dataset = skate_data('data/batb1k/test_synthetic_frames', 'data/batb1k/test_synthetic_frame_poses_FIXED.csv', device, val_transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
     print(f'Batch size: {load_batch_size}')
-    if args.pretrained_model_path is not None:
-        model = torch.load(args.pretrained_model_path, map_location='cpu')
-        print(f"Loading encoder from {args.pretrained_model_path}")
+    if args.model_path is not None:
+        model = torch.load(args.model_path)
+        print(f"Loading pretrained model from {args.model_path}")
+    elif args.pretrained_encoder_path is not None:
+        model = torch.load(args.pretrained_encoder_path, map_location='cpu')
+        print(f"Loading encoder from {args.pretrained_encoder_path}")
+        model = skateMAE(model.encoder, embed_dim=124).to(device)
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'pretrain-cls'))
     else:
-        model = MAE_ViT()
+        model = skateMAE(MAE_ViT().encoder, embed_dim=124).to(device)
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'scratch-cls'))
 
-    model = skateMAE(model.encoder, embed_dim=124).to(device)
     if num_devices > 1:
         model = nn.DataParallel(model)
 
@@ -120,7 +125,7 @@ if __name__ == '__main__':
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             print(f'saving best model with val loss {best_val_loss} and acc {avg_val_acc} at {e} epoch!')       
-            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}.pt')
+            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}_TRANSLATIONS.pt')
 
         # writer.add_scalars('cls/loss', {'train' : avg_train_loss, 'val' : avg_val_loss}, global_step=e)
         # writer.add_scalars('cls/acc', {'train' : avg_train_acc, 'val' : avg_val_acc}, global_step=e)
