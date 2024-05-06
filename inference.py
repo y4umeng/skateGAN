@@ -32,7 +32,7 @@ if __name__ == '__main__':
     
     for f in files:
         splt = f.split('/')[-1].split('.')[0].split('_')
-        if args.video_id == splt[0]:
+        if args.clip_id == splt[0]:
             frame_paths[int(splt[-1])] = f
     
     print(f"Num frames: {len(frame_paths)}")
