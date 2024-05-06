@@ -115,7 +115,7 @@ if __name__ == '__main__':
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             print(f'saving best model with val loss {best_val_loss} and acc {avg_val_acc} at {e} epoch!')       
-            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}.pt')print(f"preds: {dist_preds.mean()}, {elev_preds.mean()}, {azim_preds.mean}")
+            torch.save(model, f'{args.output_model_path}{e}_valloss_{best_val_loss}.pt')
 
         # writer.add_scalars('cls/loss', {'train' : avg_train_loss, 'val' : avg_val_loss}, global_step=e)
         # writer.add_scalars('cls/acc', {'train' : avg_train_acc, 'val' : avg_val_acc}, global_step=e)
