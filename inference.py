@@ -36,7 +36,7 @@ if __name__ == '__main__':
             frame_paths[int(splt[-1])] = f
     
     print(f"Num frames: {len(frame_paths)}")
-
+    print(frame_paths)
     frames = torch.zeros((len(frame_paths), 3, 32, 32))
     for fp in frame_paths:
         frame = transform(Image.open(frame_paths[fp]))
