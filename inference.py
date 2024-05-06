@@ -32,7 +32,6 @@ if __name__ == '__main__':
     print(f'Num files: {len(files)}')
     for f in files:
         splt = f.split('/')[-1].split('.')[0].split('_')
-        print(splt)
         if args.clip_id == splt[0]:
             frame_paths[int(splt[-1])] = f
     
