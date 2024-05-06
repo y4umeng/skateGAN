@@ -39,7 +39,7 @@ class skate_data(Dataset):
 
     def __getitem__(self, idx):
         labels = self.labels[idx]
-        return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2]
+        return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2], self.ids[idx]
 
 class skate_data_pretrain(Dataset):
     def __init__(self, data_paths, device, transform=nn.Identity()):
