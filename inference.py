@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
     
-    files = glob('data/batb1k/frames')
+    files = glob('data/batb1k/frames/*.jpg')
     frame_paths = {}
     print(f'Num files: {len(files)}')
     for f in files:
