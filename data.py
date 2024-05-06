@@ -18,6 +18,7 @@ class skate_data(Dataset):
             count = 0
             for line in csv.reader(data):
                 # skip first line
+                print(line)
                 if count == 0: 
                     count += 1
                     continue
