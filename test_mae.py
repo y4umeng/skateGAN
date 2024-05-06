@@ -13,8 +13,8 @@ from data import skate_data
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=42)
-    parser.add_argument('--batch_size', type=int, default=256)
-    parser.add_argument('--max_device_batch_size', type=int, default=256)
+    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--max_device_batch_size', type=int, default=128)
     parser.add_argument('--model_path', type=str, default='')
 
     args = parser.parse_args()

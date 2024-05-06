@@ -56,3 +56,4 @@ class skate_data_pretrain(Dataset):
 
     def __getitem__(self, idx):
         return self.transform(Image.open(self.files[idx])).to(self.device)
+   
