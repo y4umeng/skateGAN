@@ -51,6 +51,9 @@ if __name__ == '__main__':
         # writer = SummaryWriter(os.path.join('logs', 'cifar10', 'scratch-cls'))
 
     model = skateMAE(model.encoder, embed_dim=124).to(device)
+    if num_devices > 1:
+        model = nn.DataParallel(model)
+        batch_size = batch_size * num_devices
 
     loss_fn = torch.nn.MSELoss()
     weights = torch.tensor([10.0, 1.0, 1.0], device=device)
