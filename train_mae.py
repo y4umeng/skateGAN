@@ -8,7 +8,7 @@ from tqdm import tqdm
 from model import *
 from utils import setup_seed
 from data import skate_data
-from torchvision.transforms import v2
+from torchvision.transforms import Compose, ToTensor, ColorJitter, GaussianBlur, RandomErasing, Normalize
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -37,8 +37,8 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
 
-    train_transform = v2.Compose([v2.ToTensor(), v2.ColorJitter(0.3, 0.3, 0.3), v2.GaussianBlur(3), v2.Normalize(0.5, 0.5), v2.RandomErasing(0.7)])
-    val_transform = v2.Compose([v2.ToTensor(), v2.Normalize(0.5, 0.5)])
+    train_transform = Compose([ToTensor(), ColorJitter(0.3, 0.3, 0.3), GaussianBlur(3), Normalize(0.5, 0.5), RandomErasing(0.7)])
+    val_transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
     train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses_FIXED.csv', device, train_transform)
     val_dataset = skate_data('data/batb1k/test_synthetic_frames', 'data/batb1k/test_synthetic_frame_poses_FIXED.csv', device, val_transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
