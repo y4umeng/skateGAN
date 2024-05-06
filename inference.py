@@ -39,9 +39,10 @@ if __name__ == '__main__':
     print(f"Num frames: {len(frame_paths)}")
 
     frames = torch.zeros((len(frame_paths), 3, 64, 64))
-    for fp, i in enumerate(frame_paths):
-        frame = transform(Image.open(fp))
-        frames[i,...] = frame
+    for fp in frame_paths:
+        frame = transform(Image.open(frame_paths[fp]))
+        frames[fp,...] = frame
+        print(fp, frame.shape)
 
     frames = frames.to(device)
     print(f"Frames shape: {frames.shape}")
