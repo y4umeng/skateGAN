@@ -1,6 +1,6 @@
-import os
 import argparse
 import math
+import time
 import torch
 # from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import ToTensor, Compose, Normalize
@@ -68,6 +68,7 @@ if __name__ == '__main__':
         model.train()
         losses = []
         acces = []
+        time_start = time.time()
         for img, dist_label, elev_label, azim_label, _ in tqdm(iter(train_dataloader)):
             img = img.to(device)
             dist_label = dist_label.to(device)
@@ -79,7 +80,7 @@ if __name__ == '__main__':
             loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
                     loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
                     loss_fn(azim_preds.squeeze(), azim_label) * weights[2]
-            acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
+            acc = torch.mean(torch.stack((acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             loss.backward()
             if step_count % steps_per_update == 0:
                 optim.step()
@@ -101,16 +102,18 @@ if __name__ == '__main__':
                 dist_label = dist_label.to(device)
                 elev_label = elev_label.to(device)
                 azim_label = azim_label.to(device)
+
                 dist_preds, elev_preds, azim_preds = model(img)
                 loss =  loss_fn(dist_preds.squeeze(), dist_label) * weights[0] + \
                     loss_fn(elev_preds.squeeze(), elev_label) * weights[1] + \
                     loss_fn(azim_preds.squeeze(), azim_label) * weights[2] 
-                acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
+                acc = torch.mean(torch.stack((acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
                 losses.append(loss.item())
                 acces.append(acc.item())
             avg_val_loss = sum(losses) / len(losses)
             avg_val_acc = sum(acces) / len(acces)
-            print(f'In epoch {e}, average validation loss is {avg_val_loss}, average validation acc is {avg_val_acc}.')  
+            print(f'In epoch {e}, average validation loss is {avg_val_loss}, average validation acc is {avg_val_acc}.')
+            print(f'Epoch time: {time.time()-time_start} seconds')  
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
