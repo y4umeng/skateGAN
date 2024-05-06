@@ -29,6 +29,14 @@ if __name__ == '__main__':
     num_devices = torch.cuda.device_count() 
     print(f"Device: {device}")
     print(f"Num GPUs: {num_devices}")
+    print("torch.cuda.memory_allocated: %fGB"%(torch.cuda.memory_allocated(0)/1024/1024/1024))
+    print("torch.cuda.memory_reserved: %fGB"%(torch.cuda.memory_reserved(0)/1024/1024/1024))
+    print("torch.cuda.max_memory_reserved: %fGB"%(torch.cuda.max_memory_reserved(0)/1024/1024/1024))
+    torch.cuda.empty_cache()
+    print("torch.cuda.memory_allocated: %fGB"%(torch.cuda.memory_allocated(0)/1024/1024/1024))
+    print("torch.cuda.memory_reserved: %fGB"%(torch.cuda.memory_reserved(0)/1024/1024/1024))
+    print("torch.cuda.max_memory_reserved: %fGB"%(torch.cuda.max_memory_reserved(0)/1024/1024/1024))
+
 
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
