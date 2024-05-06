@@ -37,8 +37,8 @@ if __name__ == '__main__':
     steps_per_update = batch_size // load_batch_size
 
     transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
-    train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses.csv', device, transform)
-    val_dataset = skate_data('data/batb1k/val', 'data/batb1k/synthetic_frame_poses.csv', device, transform)
+    train_dataset = skate_data('data/batb1k/synthetic_frames', 'data/batb1k/synthetic_frame_poses_FIXED.csv', device, transform)
+    val_dataset = skate_data('data/batb1k/test_synthetic_frames', 'data/batb1k/test_synthetic_frame_poses_FIXED.csv', device, transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
     print(f'Batch size: {load_batch_size}')
@@ -75,12 +75,9 @@ if __name__ == '__main__':
 
             step_count += 1
             dist_preds, elev_preds, azim_preds = model(img)
-            dist_loss = loss_fn(dist_preds.squeeze(), dist_label)
-            elev_loss = loss_fn(elev_preds.squeeze(), elev_label)
-            azim_loss = loss_fn(azim_preds.squeeze(), azim_label) 
-            print(f"preds: {dist_preds.mean()}, {elev_preds.mean()}, {azim_preds.mean()}")
-            print(f"labels: {dist_label.mean()}, {elev_label.mean()}, {azim_label.mean()}")
-            loss = dist_loss + elev_loss + azim_loss
+            loss =  loss_fn(dist_preds.squeeze(), dist_label) + \
+                    loss_fn(elev_preds.squeeze(), elev_label) + \
+                    loss_fn(azim_preds.squeeze(), azim_label)
             acc = torch.mean(torch.stack((acc_fn(dist_preds, dist_label), acc_fn(elev_preds, elev_label), acc_fn(azim_preds, azim_label))))
             loss.backward()
             if step_count % steps_per_update == 0:
