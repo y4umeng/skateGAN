@@ -16,8 +16,11 @@ def setup_seed(seed=42):
 class binary_erosion(object):
     def __init__ (self):
         self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, bias=False, padding=1)
-        self.conv.weight = torch.nn.Parameter(torch.tensor([[0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0, 0.0]]).unsqueeze(0))
+        self.conv.weight = torch.nn.Parameter(torch.tensor([[0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0, 0.0]]).unsqueeze(0).unsqueeze(0))
     def __call__(self, mask, iterations):
+        mask = mask.unsqueeze(0)
+        print(f'mask shape: {mask.shape}')
+        
         for _ in range(iterations):
             mask = self.conv(mask.float()) >= 2.0
         return mask
