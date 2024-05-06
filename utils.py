@@ -44,6 +44,7 @@ class Add_Legs(object):
         legs = legs[:3,...] / 255.0
         mask = self.erosion(mask, 6)
         print(f'MASK AFTER EROSION: {mask.shape}')
-        return img * mask.unsqueeze(0) + legs.unsqueeze(0)
+        return img
+        # return img * mask.unsqueeze(0) + legs.unsqueeze(0)
     def __repr__(self):
         return "adding random legs augmentation"
