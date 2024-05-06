@@ -27,4 +27,4 @@
 source .venv/bin/activate
 
 # Run your application
-python train_mae.py --batch_size 128 --pretrained_model_path checkpoints/skateMAE_BEST_PRETRAINED_e549.pt
+python train_mae.py --batch_size 128 --model_path checkpoints/skateMAE_epoch_29_valloss_3754.8276095920137.pt
