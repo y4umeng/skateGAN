@@ -47,6 +47,6 @@ class Add_Legs(object):
         # print(f'Image: {img.shape}')
         # print(f'Legs: {legs.shape}')
 
-        return img * mask.unsqueeze(0) + legs.unsqueeze(0)
+        return img * mask + legs
     def __repr__(self):
         return "adding random legs augmentation"
