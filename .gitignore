@@ -163,3 +163,4 @@ cython_debug/
 data/
 *.pt
 .DS_Store
+checkpoints/
