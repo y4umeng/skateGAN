@@ -17,7 +17,6 @@ class skateMAE(torch.nn.Module):
         self.azim_head = nn.Sequential(nn.Linear(self.pos_embedding.shape[-1], embed_dim), nn.Linear(embed_dim, 1)) 
         self.heads = [self.dist_head, self.elev_head, self.azim_head]
     def forward(self, img):
-        print(f'device: {img.device}')
         patches = self.patchify(img)
         patches = rearrange(patches, 'b c h w -> (h w) b c')
         patches = patches + self.pos_embedding
