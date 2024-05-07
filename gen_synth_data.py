@@ -167,10 +167,11 @@ if __name__ == '__main__':
         print(f'Images: {images.shape}')
         print(f'Alpha: {alphas.shape}')
         for j in range(batch_size):
-            torchvision.utils.save_image(images[j,...], path.join(synth_frames_path, f'{frame_id}.jpg'))
+            print(f'single image: {images[j,...].shape}')
+            # torchvision.utils.save_image(images[j,...], path.join(synth_frames_path, f'{frame_id}.jpg'))
             # write bounding box info to csv
-            with open(csv_path, 'a', newline='') as pose_csv:
-                pose_csv.write(f'{frame_id},{dist[j]}, {elev[j]},{azim[j]}\n')
+            # with open(csv_path, 'a', newline='') as pose_csv:
+            #     pose_csv.write(f'{frame_id},{dist[j]}, {elev[j]},{azim[j]}\n')
             frame_id += 1
         break
     # print(f"Images: {images.shape}")
