@@ -1,7 +1,7 @@
 import random
 import torch
 import numpy as np
-import sys 
+import argparse
 from glob import glob 
 from os import path 
 import torch.nn as nn
@@ -176,7 +176,11 @@ def image_grid(
             ax.set_axis_off()
 
 if __name__ == '__main__':
-    device = 'cuda'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--device', type=str, default='cuda')
+    args = parser.parse_args()
+    device = args.device
+    print(f"Device: {device}")
     batch_size = 16
     setup_seed(8)
     pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 32, batch_size, device)
@@ -188,4 +192,6 @@ if __name__ == '__main__':
     images, _ = pg(dist.to(device), elev.to(device), azim.to(device))
     print(f"Images: {images.shape}")
     print(f'Time: {time.time() - start}')
-    image_grid(images.cpu())
+    # image_grid(images.cpu())
+    torch.save(images.cpu(), 'util_images.pt')
+    print("Saved...")
