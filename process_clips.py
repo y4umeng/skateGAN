@@ -134,7 +134,9 @@ def process_video(video_directory,
     frames = vid[0]
     # transform = Compose([Resize(32)])
     print(f'Frames SHAPE {frames.shape}')
-    # if frames.shape[]
+    if frames.shape[1] != 720 or frames.shape[2] != 1280 or frames.shape[3] != 3:
+        print(f'Video is of incorrect shape {frames.shape}')
+        return
     frame_id = 0
     for i in range(frames.shape[0]):
         start = time.time()
@@ -206,6 +208,7 @@ if __name__ == '__main__':
     box_model.eval()
     leg_model.eval()
     for vp in video_paths:
+        if 'U' in vp: continue
         process_video(video_directory, 
                       vp, 
                       frames_directory, 
