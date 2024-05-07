@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
     frame_id = 0
     count = 0
-    for _ in range(10,000):
+    for _ in range(10000):
         count += 1
         dist = torch.rand(batch_size) * 0.4 + 0.4
         elev = torch.round(torch.rand(batch_size) * 360)
