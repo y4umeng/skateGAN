@@ -188,7 +188,8 @@ if __name__ == '__main__':
     legs_directory = 'data/batb1k/leg_masks128'
     bbox_csv_path = 'data/batb1k/new_bboxs.csv'
     old_bbox_csv_path = 'data/batb1k/bounding_box_data.csv'
-
+    old_bbox = get_old_bbox(old_bbox_csv_path) 
+    print(f"{len(old_bbox)} previous bboxs found.")
     # if not path.isfile(bbox_csv_path):
     fields = ['frame_id', 'clip_id', 'frame_num', 'x1', 'y1', 'x2', 'y2']
     with open(bbox_csv_path, 'w', newline='') as file:
@@ -203,7 +204,6 @@ if __name__ == '__main__':
     box_model.eval()
     leg_model.eval()
     for vp in video_paths:
-        vp = '64.mov'
         process_video(video_directory, 
                       vp, 
                       frames_directory, 
@@ -211,11 +211,10 @@ if __name__ == '__main__':
                       legs_directory, 
                       bbox_csv_path,
                       transform,
-                      get_old_bbox(old_bbox_csv_path),
+                      old_bbox,
                       box_model,
                       box_processor,
                       leg_model,
                       leg_processor,
                       device
                       )
-        break
