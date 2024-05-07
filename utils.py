@@ -92,7 +92,7 @@ class pose_generator(torch.nn.Module):
             image_size = img_shape,
             blur_radius = 0.0,
             faces_per_pixel = 100,
-            max_faces_per_bin=100
+            bin_size=0
         )
 
         self.lights = PointLights(device=device, location=[[0.0, 0.0, -3.0]])
