@@ -133,6 +133,8 @@ def process_video(video_directory,
     print(f'Processing video {vid_id}.')
     frames = vid[0]
     # transform = Compose([Resize(32)])
+    print(f'Frames SHAPE {frames.shape}')
+    # if frames.shape[]
     frame_id = 0
     for i in range(frames.shape[0]):
         start = time.time()
