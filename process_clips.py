@@ -64,15 +64,16 @@ def process_frame(frame,
                   box_model,
                   box_processor,
                   leg_model,
-                  leg_processor
+                  leg_processor,
+                  device
                   ):
     c, h, w = frame.shape
     assert(c == 3)
     # Save two random background images
     background1 = transform(RandomCrop(256)(frame[:,round(h/3.0):,:round(w/3.0)]))  
     background2 = transform(RandomCrop(256)(frame[:,round(h/3.0):,round(w/3.0)*2:]))   
-    torchvision.utils.save_image(background1 / 255.0, path.join(background_directory, f'{frame_id}_0.jpg'))
-    torchvision.utils.save_image(background2 / 255.0, path.join(background_directory, f'{frame_id}_1.jpg'))
+    torchvision.utils.save_image(background1.cpu() / 255.0, path.join(background_directory, f'{frame_id}_0.jpg'))
+    torchvision.utils.save_image(background2.cpu() / 255.0, path.join(background_directory, f'{frame_id}_1.jpg'))
 
     # find bounding box
     if frame_id in bboxs_old: 
@@ -89,7 +90,7 @@ def process_frame(frame,
         return
 
     # save frame
-    torchvision.utils.save_image(transform(cropped_frame) / 255.0, path.join(frames_directory, frame_id + '.jpg'))
+    torchvision.utils.save_image(transform(cropped_frame.cpu()) / 255.0, path.join(frames_directory, frame_id + '.jpg'))
 
     # write bounding box info to csv
     with open(bbox_csv_path, 'a', newline='') as bbox_csv:
@@ -106,10 +107,7 @@ def process_frame(frame,
     cropped_frame = transform(cropped_frame)
     mask = transform(mask)
     legs = torch.cat((cropped_frame, mask), dim=0)
-    # print(legs.shape)
-    # plt.imshow(cropped_frame.permute(1, 2, 0))
-    torch.save(legs, path.join(legs_directory, f'{frame_id}_legs.pt'))
-    
+    torch.save(legs.cpu(), path.join(legs_directory, f'{frame_id}_legs.pt'))
     return
     
 
@@ -124,12 +122,13 @@ def process_video(video_directory,
                   box_model,
                   box_processor,
                   leg_model,
-                  leg_processor
+                  leg_processor,
+                  device
                   ):
     vid = torchvision.io.read_video(path.join(video_directory, video_path))
     vid_id = video_path.split('.')[0]
     print(f'Processing video {vid_id}.')
-    frames = vid[0]
+    frames = vid[0].to(device)
     # transform = Compose([Resize(32)])
     frame_id = 0
     for i in range(frames.shape[0]):
@@ -147,7 +146,8 @@ def process_video(video_directory,
                       box_model,
                       box_processor,
                       leg_model,
-                      leg_processor
+                      leg_processor,
+                      device
                       )
         print(f'Processed frame {vid_id}_{frame_id}')
         frame_id += 1
@@ -188,10 +188,10 @@ if __name__ == '__main__':
         writer.writeheader()
 
     checkpoint_name = 'facebook/maskformer-swin-small-coco'
-    leg_model = MaskFormerForInstanceSegmentation.from_pretrained(checkpoint_name)
-    leg_processor = MaskFormerImageProcessor.from_pretrained(checkpoint_name)
-    box_processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
-    box_model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+    leg_model = MaskFormerForInstanceSegmentation.from_pretrained(checkpoint_name).to(device)
+    leg_processor = MaskFormerImageProcessor.from_pretrained(checkpoint_name).to(device)
+    box_processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm").to(device)
+    box_model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm").to(device)
     box_model.eval()
     leg_model.eval()
     for vp in video_paths:
@@ -207,6 +207,7 @@ if __name__ == '__main__':
                       box_model,
                       box_processor,
                       leg_model,
-                      leg_processor
+                      leg_processor,
+                      device
                       )
         break
