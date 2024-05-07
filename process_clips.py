@@ -170,7 +170,11 @@ def get_old_bbox(csv_path):
     return bboxs
 
 if __name__ == '__main__':
-    device = 'cuda'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--device', type=str, default='cuda')
+    args = parser.parse_args()
+
+    device = args.device
     from glob import glob
     video_directory = 'data/batb1k/videos'
     video_paths = [f.split('/')[-1] for f in glob(path.join(video_directory, '*.mov'))]
@@ -189,8 +193,8 @@ if __name__ == '__main__':
 
     checkpoint_name = 'facebook/maskformer-swin-small-coco'
     leg_model = MaskFormerForInstanceSegmentation.from_pretrained(checkpoint_name).to(device)
-    leg_processor = MaskFormerImageProcessor.from_pretrained(checkpoint_name).to(device)
-    box_processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm").to(device)
+    leg_processor = MaskFormerImageProcessor.from_pretrained(checkpoint_name)
+    box_processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
     box_model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm").to(device)
     box_model.eval()
     leg_model.eval()
