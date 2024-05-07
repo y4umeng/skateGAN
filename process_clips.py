@@ -7,6 +7,7 @@ from os import path
 import scipy
 import av
 import csv 
+import time
 
 def square_crop(image, box):
     width = box[2] - box[0]
@@ -134,6 +135,7 @@ def process_video(video_directory,
     # transform = Compose([Resize(32)])
     frame_id = 0
     for i in range(frames.shape[0]):
+        start = time.time()
         frame = frames[i,:,:,:].permute(2, 0, 1).to(device)
         process_frame(frame, 
                       f'{vid_id}_{frame_id}', 
@@ -151,7 +153,7 @@ def process_video(video_directory,
                       leg_processor,
                       device
                       )
-        # print(f'Processed frame {vid_id}_{frame_id}')
+        print(f'Processed frame {vid_id}_{frame_id} in time {time.time()-start}')
         frame_id += 1
 
 def get_old_bbox(csv_path):
