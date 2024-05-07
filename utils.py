@@ -78,6 +78,7 @@ class pose_generator(torch.nn.Module):
         mesh = Meshes(
             verts=[verts],
             faces=[faces.verts_idx],
+            
             textures=TexturesAtlas(atlas=[atlas]),)
         meshes = mesh.extend(batch_size)
         print('We have {0} vertices and {1} faces.'.format(verts.shape[0], faces.verts_idx.shape[0]))
@@ -91,6 +92,7 @@ class pose_generator(torch.nn.Module):
             image_size = img_shape,
             blur_radius = 0.0,
             faces_per_pixel = 100,
+            max_faces_per_bin=100
         )
 
         self.lights = PointLights(device=device, location=[[0.0, 0.0, -3.0]])
@@ -105,7 +107,8 @@ class pose_generator(torch.nn.Module):
         self.renderer = MeshRenderer(
             rasterizer=MeshRasterizer(
                 cameras=cameras,
-                raster_settings=raster_settings
+                raster_settings=raster_settings,
+                
             ),
             shader=SoftPhongShader(
                 device=device,
@@ -185,4 +188,4 @@ if __name__ == '__main__':
     images, _ = pg(dist.to(device), elev.to(device), azim.to(device))
     print(f"Images: {images.shape}")
     print(f'Time: {time.time() - start}')
-    image_grid(images)
+    image_grid(images.cpu())
