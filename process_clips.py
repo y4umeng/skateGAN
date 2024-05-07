@@ -135,7 +135,7 @@ def process_video(video_directory,
     vid_id = video_path.split('.')[0]
     print(f'Processing video {vid_id}.')
     frames = vid[0]
-    if frames.shape[1] != 720 or frames.shape[2] != 1280 or frames.shape[3] != 3:
+    if frames.shape[1] != 1080 or frames.shape[2] != 1920 or frames.shape[3] != 3:
         print(f'Video is of incorrect shape {frames.shape}')
         return
     frame_id = 0

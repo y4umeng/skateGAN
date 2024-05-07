@@ -150,11 +150,11 @@ if __name__ == '__main__':
     csv_path = 'data/batb1k/synthetic_poses128.csv'
     synth_frames_path = 'data/batb1k/synthetic_frames128'
     
-    if not path.isfile(csv_path):
-        fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
-        with open(csv_path, 'w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames = fields)
-            writer.writeheader()
+    # if not path.isfile(csv_path):
+    #     fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
+    #     with open(csv_path, 'w', newline='') as file:
+    #         writer = csv.DictWriter(file, fieldnames = fields)
+    #         writer.writeheader()
 
     frame_id = 0
     count = 0
