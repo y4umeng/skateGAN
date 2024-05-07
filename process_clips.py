@@ -93,7 +93,7 @@ def process_frame(frame,
 
     # write bounding box info to csv
     with open(bbox_csv_path, 'a', newline='') as bbox_csv:
-        bbox_csv.write(f'{frame_id},{vid_id},{frame_num},{int(box[0].item())},{int(box[1].item())},{int(box[2].item())},{int(box[3].item())}\n')
+        bbox_csv.write(f'{frame_id},{vid_id},{frame_num},{int(box[0])},{int(box[1])},{int(box[2])},{int(box[3])}\n')
 
     # get leg mask
     semantic_segmentation = get_mask(cropped_frame, leg_processor, leg_model)
