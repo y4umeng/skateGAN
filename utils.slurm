@@ -27,4 +27,4 @@
 source activate pytorch3d 
 
 # Run your application
-python utils.py
+python gen_synth_data.py
