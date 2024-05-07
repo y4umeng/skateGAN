@@ -85,7 +85,10 @@ def process_frame(frame,
             box = get_bbox(frame, box_processor, box_model)
         except:
             return
-    if box == None: return
+    if box == None: 
+        with open(bbox_csv_path, 'a', newline='') as bbox_csv:
+            bbox_csv.write(f'{frame_id},{vid_id},{frame_num},{0},{0},{0},{0}\n')
+        return
     try:
         cropped_frame = square_crop(frame, box)
     except:
@@ -192,11 +195,11 @@ if __name__ == '__main__':
     old_bbox_csv_path = 'data/batb1k/bounding_box_data.csv'
     old_bbox = get_old_bbox(old_bbox_csv_path) 
     print(f"{len(old_bbox)} previous bboxs found.")
-    if not path.isfile(bbox_csv_path):
-        fields = ['frame_id', 'clip_id', 'frame_num', 'x1', 'y1', 'x2', 'y2']
-        with open(bbox_csv_path, 'w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames = fields)
-            writer.writeheader()
+    # if not path.isfile(bbox_csv_path):
+    fields = ['frame_id', 'clip_id', 'frame_num', 'x1', 'y1', 'x2', 'y2']
+    with open(bbox_csv_path, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames = fields)
+        writer.writeheader()
 
     checkpoint_name = 'facebook/maskformer-swin-small-coco'
     leg_model = MaskFormerForInstanceSegmentation.from_pretrained(checkpoint_name).to(device)
