@@ -181,9 +181,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = args.device
     print(f"Device: {device}")
-    batch_size = 16
+    batch_size = 64
     setup_seed(8)
-    pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 32, batch_size, device)
+    pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
     start = time.time()
     dist = torch.rand(batch_size) * 0.4 + 0.5
     elev = torch.rand(batch_size) * 360
