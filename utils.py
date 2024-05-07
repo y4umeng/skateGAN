@@ -176,7 +176,7 @@ if __name__ == '__main__':
     device = 'cuda'
     batch_size = 16
     setup_seed(8)
-    pg = pose_generator('/content/drive/MyDrive/skatedata/data/board_model/skateboard.obj', 32, batch_size, device)
+    pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 32, batch_size, device)
     start = time.time()
     dist = torch.rand(batch_size) * 0.4 + 0.5
     elev = torch.rand(batch_size) * 360
