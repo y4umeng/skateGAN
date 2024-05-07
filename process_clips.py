@@ -206,8 +206,9 @@ if __name__ == '__main__':
     box_model.eval()
     leg_model.eval()
     for vp in video_paths:
-        if 'U' in vp: continue
-        vp = '54.mov'
+        if not vp.split('.')[0].isnumeric(): 
+            print(f"Received incorrect video path {vp}")
+            continue
         process_video(video_directory, 
                       vp, 
                       frames_directory, 
