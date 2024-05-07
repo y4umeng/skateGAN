@@ -143,7 +143,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = args.device
     print(f"Device: {device}")
-    
+
     batch_size = 8
     setup_seed(8)
     pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
@@ -161,14 +161,16 @@ if __name__ == '__main__':
         dist = torch.rand(batch_size) * 0.4 + 0.4
         elev = torch.round(torch.rand(batch_size) * 360)
         azim = torch.round(torch.rand(batch_size) * 180)
-        images, _ = pg(dist.to(device), elev.to(device), azim.to(device))
-
+        images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
+        print(f'Images: {images.shape}')
+        print(f'Alpha: {alphas.shape}')
         for j in range(batch_size):
             torchvision.utils.save_image(images[j,...], path.join(synth_frames_path, f'{frame_id}.jpg'))
             # write bounding box info to csv
             with open(csv_path, 'a', newline='') as pose_csv:
                 pose_csv.write(f'{frame_id},{dist[j]}, {elev[j]},{azim[j]}\n')
             frame_id += 1
+        break
     # print(f"Images: {images.shape}")
     # print(f'Time: {time.time() - start}')
     # image_grid(images.cpu())
