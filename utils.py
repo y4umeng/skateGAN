@@ -182,7 +182,7 @@ if __name__ == '__main__':
     elev = torch.rand(batch_size) * 360
     azim = torch.rand(batch_size) * 180
     # print(dist.shape)
-    images, _ = pg(dist, elev, azim)
+    images, _ = pg(dist.to(device), elev.to(device), azim.to(device))
     print(f"Images: {images.shape}")
     print(f'Time: {time.time() - start}')
     image_grid(images)
