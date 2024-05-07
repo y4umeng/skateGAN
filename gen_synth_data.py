@@ -164,18 +164,10 @@ if __name__ == '__main__':
         elev = torch.round(torch.rand(batch_size) * 360)
         azim = torch.round(torch.rand(batch_size) * 180)
         images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
-        print(f'Images: {images.shape}')
-        print(f'Alpha: {alphas.shape}')
         images = torch.cat((images, alphas.unsqueeze(-1)), dim=-1)
-        print(f"Combined: {images.shape}")
         for j in range(batch_size):
-            print(f'single image: {images[j,...].shape}')
-            # torchvision.utils.save_image(images[j,...], path.join(synth_frames_path, f'{frame_id}.jpg'))
-            # write bounding box info to csv
-            # with open(csv_path, 'a', newline='') as pose_csv:
-            #     pose_csv.write(f'{frame_id},{dist[j]}, {elev[j]},{azim[j]}\n')
+            torch.save(images[j,...], path.join(synth_frames_path, f'{frame_id}.pt'))
             frame_id += 1
-        break
     # print(f"Images: {images.shape}")
     # print(f'Time: {time.time() - start}')
     # image_grid(images.cpu())
