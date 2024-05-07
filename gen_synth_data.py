@@ -166,6 +166,8 @@ if __name__ == '__main__':
         images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
         print(f'Images: {images.shape}')
         print(f'Alpha: {alphas.shape}')
+        images = torch.cat((images, alphas.unsqueeze(-1)), dim=-1)
+        print(f"Combined: {images.shape}")
         for j in range(batch_size):
             print(f'single image: {images[j,...].shape}')
             # torchvision.utils.save_image(images[j,...], path.join(synth_frames_path, f'{frame_id}.jpg'))
