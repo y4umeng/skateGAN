@@ -17,7 +17,7 @@
 ##SBATCH --mail-type=end
 
 # Choose partition (queue) "cpu" or "cpu-share" or replace with partition you can access
-#SBATCH -p gpu-share
+#SBATCH -p cpu-share
 
 # Use 2 nodes and 80 cores
 #SBATCH -N 2 -n 80
