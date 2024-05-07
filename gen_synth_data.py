@@ -150,11 +150,11 @@ if __name__ == '__main__':
     csv_path = 'data/batb1k/synthetic_poses128.csv'
     synth_frames_path = 'data/batb1k/synthetic_frames128'
     
-    # if not path.isfile(csv_path):
-    #     fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
-    #     with open(csv_path, 'w', newline='') as file:
-    #         writer = csv.DictWriter(file, fieldnames = fields)
-    #         writer.writeheader()
+    if not path.isfile(csv_path):
+        fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
+        with open(csv_path, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames = fields)
+            writer.writeheader()
 
     frame_id = 0
     count = 0
@@ -165,8 +165,11 @@ if __name__ == '__main__':
         azim = torch.round(torch.rand(batch_size) * 180)
         images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
         images = torch.cat((images, alphas.unsqueeze(-1)), dim=-1)
-        for j in range(batch_size):
-            torch.save(images[j,...], path.join(synth_frames_path, f'{frame_id}.pt'))
+
+        for i in range(batch_size):
+            torch.save(images[i,...], path.join(synth_frames_path, f'{frame_id}.pt'))
+            with open(csv_path, 'a', newline='') as pose_csv:
+                pose_csv.write(f'{frame_id},{dist[i]},{elev[i]},{azim[i]}\n')
             frame_id += 1
     # print(f"Images: {images.shape}")
     # print(f'Time: {time.time() - start}')
