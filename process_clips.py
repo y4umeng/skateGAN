@@ -72,7 +72,7 @@ def process_frame(frame,
     # Save two random background images
     background1 = transform(RandomCrop(256)(frame[:,round(h/3.0):,:round(w/3.0)]))  
     background2 = transform(RandomCrop(256)(frame[:,round(h/3.0):,round(w/3.0)*2:]))  
-    print(f"Background: {background1.shape}, {background2.shape}") 
+    # print(f"Background: {background1.shape}, {background2.shape}") 
     torchvision.utils.save_image(background1.cpu() / 255.0, path.join(background_directory, f'{frame_id}_0.jpg'))
     torchvision.utils.save_image(background2.cpu() / 255.0, path.join(background_directory, f'{frame_id}_1.jpg'))
 
@@ -91,7 +91,6 @@ def process_frame(frame,
         return
 
     # save frame
-    print(f'Crop: {cropped_frame.shape}')
     torchvision.utils.save_image(transform(cropped_frame.cpu()) / 255.0, path.join(frames_directory, frame_id + '.jpg'))
 
     # write bounding box info to csv
@@ -109,7 +108,7 @@ def process_frame(frame,
     cropped_frame = transform(cropped_frame)
     mask = transform(mask)
     legs = torch.cat((cropped_frame, mask), dim=0)
-    print(f"Leg: {legs.shape}")
+   
     torch.save(legs.cpu(), path.join(legs_directory, f'{frame_id}_legs.pt'))
     return
     
@@ -152,7 +151,7 @@ def process_video(video_directory,
                       leg_processor,
                       device
                       )
-        print(f'Processed frame {vid_id}_{frame_id}')
+        # print(f'Processed frame {vid_id}_{frame_id}')
         frame_id += 1
 
 def get_old_bbox(csv_path):
@@ -202,7 +201,7 @@ if __name__ == '__main__':
     box_model.eval()
     leg_model.eval()
     for vp in video_paths:
-        vp = '18.mov'
+        vp = '64.mov'
         process_video(video_directory, 
                       vp, 
                       frames_directory, 
