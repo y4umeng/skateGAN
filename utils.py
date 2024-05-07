@@ -181,7 +181,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = args.device
     print(f"Device: {device}")
-    batch_size = 8
+    batch_size = 1
     setup_seed(8)
     pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
     start = time.time()
