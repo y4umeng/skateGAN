@@ -97,7 +97,7 @@ def process_frame(frame,
         bbox_csv.write(f'{frame_id},{vid_id},{frame_num},{int(box[0])},{int(box[1])},{int(box[2])},{int(box[3])}\n')
 
     # get leg mask
-    semantic_segmentation = get_mask(cropped_frame, leg_processor, leg_model)
+    semantic_segmentation = get_mask(cropped_frame.to(device), leg_processor, leg_model)
     mask = semantic_segmentation == 0.0
     if torch.sum(mask) == 0:
         return 
