@@ -157,7 +157,9 @@ if __name__ == '__main__':
             writer.writeheader()
 
     frame_id = 0
+    count = 0
     for _ in range(10,000):
+        count += 1
         dist = torch.rand(batch_size) * 0.4 + 0.4
         elev = torch.round(torch.rand(batch_size) * 360)
         azim = torch.round(torch.rand(batch_size) * 180)
@@ -174,4 +176,4 @@ if __name__ == '__main__':
     # print(f"Images: {images.shape}")
     # print(f'Time: {time.time() - start}')
     # image_grid(images.cpu())
-    print("Saved...")
+    print(f"Saved... {count}")
