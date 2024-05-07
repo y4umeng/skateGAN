@@ -128,11 +128,11 @@ def process_video(video_directory,
     vid = torchvision.io.read_video(path.join(video_directory, video_path))
     vid_id = video_path.split('.')[0]
     print(f'Processing video {vid_id}.')
-    frames = vid[0].to(device)
+    frames = vid[0]
     # transform = Compose([Resize(32)])
     frame_id = 0
     for i in range(frames.shape[0]):
-        frame = frames[i,:,:,:].permute(2, 0, 1)
+        frame = frames[i,:,:,:].permute(2, 0, 1).to(device)
         process_frame(frame, 
                       f'{vid_id}_{frame_id}', 
                       vid_id, 
