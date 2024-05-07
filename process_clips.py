@@ -109,6 +109,7 @@ def process_frame(frame,
     # print(legs.shape)
     # plt.imshow(cropped_frame.permute(1, 2, 0))
     torch.save(legs, path.join(legs_directory, f'{frame_id}_legs.pt'))
+    
     return
     
 
@@ -148,6 +149,7 @@ def process_video(video_directory,
                       leg_model,
                       leg_processor
                       )
+        print(f'Processed frame {vid_id}_{frame_id}')
         frame_id += 1
 
 def get_old_bbox(csv_path):
