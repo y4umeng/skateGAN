@@ -151,7 +151,8 @@ if __name__ == '__main__':
     dl = torch.utils.data.DataLoader(dataset, 1, shuffle=False, num_workers=2)
     print(f"dataset len = {len(dataset)}")
     for img, _, _, _, id in tqdm(iter(dl)):
-        print(f'id: {id}')
+        pass
+        # print(f'id: {id}')
         # print(img.shape)
         # torch.save(img, path.join(synth_frames_path, f'{id}.jpg')) 
 
