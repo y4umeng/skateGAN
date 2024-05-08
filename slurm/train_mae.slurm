@@ -20,7 +20,7 @@
 #SBATCH -p gpu-share
 
 # Use 2 nodes and 80 cores
-#SBATCH -N 2 -n 8 --gres=gpu:8
+#SBATCH -N 1 -n 8 --gres=gpu:8
 
 # Setup runtime environment if necessary
 # For example, setup intel MPI environment
