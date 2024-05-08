@@ -3,7 +3,7 @@ import math
 import torch
 import torchvision
 # from torch.utils.tensorboard import SummaryWriter
-from torchvision.transforms import ToTensor, Compose, Normalize
+from torchvision.transforms import ToTensor, Compose, Normalize, ColorJitter, RandomAffine
 from tqdm import tqdm
 
 from model import *
@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
     parser.add_argument('--model_path', type=str, default='checkpoints/pretrain128.pt')
+    parser.add_argument('-load', action='store_true')
 
     args = parser.parse_args()
 
@@ -37,19 +38,26 @@ if __name__ == '__main__':
     # transforms
     real_transform = Compose([ToTensor()])
     synth_transform = Compose([Add_Legs('data/batb1k/leg_masks128')]) 
-    shared_transform = Compose([Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])]) 
+    shared_transform = Compose([ColorJitter(0.3, 0.3, 0.3), 
+                                RandomAffine(degrees=0, translate=(0.3,0.3)),
+                                Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])]) 
     inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
     
     # create dataloader
     real_train_dataset = skate_data_pretrain(['data/batb1k/frames128'], transform=real_transform)
     synth_train_dataset = skate_data_synth_pretrain('data/batb1k/synthetic_frames128', 'data/batb1k/backgrounds128', transform=synth_transform)
     combined_dataset = skate_data_combined(real_train_dataset, synth_train_dataset, shared_transform)
-    val_dataset = real_train_dataset
+    val_dataset = combined_dataset
     print(f'Batch size: {load_batch_size}.')
     dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=4)
     
     # create mae
-    model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).to(device)
+    if args.load:
+        print(f"Loading pretrained MAE from {args.model_path}.")
+        model = torch.load(args.model_path)
+    else:
+        print(f"Initializing new untrained MAE.")
+        model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).to(device)
     if num_devices > 1:
         model = nn.DataParallel(model)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)

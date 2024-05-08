@@ -47,7 +47,7 @@ class skate_data(Dataset):
         return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2], self.ids[idx]
 
 class skate_data_pretrain(Dataset):
-    def __init__(self, data_paths, transform=nn.Identity()):
+    def __init__(self, data_paths, transform):
         self.transform = transform
         self.files = []
         for p in data_paths:
@@ -61,7 +61,7 @@ class skate_data_pretrain(Dataset):
         return self.transform(Image.open(self.files[idx]))
     
 class skate_data_synth_pretrain(Dataset):
-    def __init__(self, image_path, background_path, transform=nn.Identity()):
+    def __init__(self, image_path, background_path, transform):
         self.transform = transform
         self.images = glob(path.join(image_path, '*.pt'))
         self.backgrounds = glob(path.join(background_path, '*.jpg'))
@@ -76,7 +76,7 @@ class skate_data_synth_pretrain(Dataset):
         return self.transform(img)
 
 class skate_data_combined(Dataset):
-    def __init__(self, real_dataset, synth_dataset, transform=nn.Identity()):
+    def __init__(self, real_dataset, synth_dataset, transform):
         self.transform = transform
         self.real = real_dataset
         self.synth = synth_dataset
