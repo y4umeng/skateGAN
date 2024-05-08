@@ -12,7 +12,7 @@ from torchvision.transforms import Compose, ToTensor, ColorJitter, Normalize, Ra
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--seed', type=int, default=8888)
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--max_device_batch_size', type=int, default=256)
     parser.add_argument('--base_learning_rate', type=float, default=1e-3)
@@ -28,8 +28,8 @@ if __name__ == '__main__':
     setup_seed(args.seed)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     num_devices = torch.cuda.device_count() 
-    print(f"Device: {device}")
-    print(f"Num GPUs: {num_devices}")
+    print(f"Device: {device}", flush=True)
+    print(f"Num GPUs: {num_devices}", flush=True)
 
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
