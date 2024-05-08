@@ -49,7 +49,7 @@ if __name__ == '__main__':
     combined_dataset = skate_data_combined(real_train_dataset, synth_train_dataset, shared_transform)
     val_dataset = combined_dataset
     print(f'Batch size: {load_batch_size}.')
-    dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=8)
+    dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=4)
     
     # create mae
     if args.load:
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     else:
         print(f"Initializing new untrained MAE.")
         model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).to(device)
-    if num_devices > 1:
-        model = nn.DataParallel(model)
+        if num_devices > 1:
+            model = nn.DataParallel(model)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
     lr_func = lambda epoch: min((epoch + 1) / (args.warmup_epoch + 1e-8), 0.5 * (math.cos(epoch / args.total_epoch * math.pi) + 1))
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optim, lr_lambda=lr_func)
