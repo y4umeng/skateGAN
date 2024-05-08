@@ -81,7 +81,7 @@ if __name__ == '__main__':
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
             img = inv_normalize(img) 
-            torchvision.utils.save_image(img, f"logs/val_epoch128.jpg")
+            torchvision.utils.save_image(img.cpu(), f"logs/val128.jpg")
         
         ''' save model '''
         torch.save(model, args.model_path)
