@@ -27,4 +27,4 @@
 source .venv/bin/activate
 
 # Run your application
-python mae_pretrain.py --batch_size 128
+python mae_pretrain.py --batch_size 128 -load
