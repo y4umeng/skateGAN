@@ -24,7 +24,8 @@
 
 # Setup runtime environment if necessary
 # For example, setup intel MPI environment
-source activate pytorch3d 
+# source activate pytorch3d 
+source .venv/bin/activate
 
 # Run your application
 python gen_synth_data.py
