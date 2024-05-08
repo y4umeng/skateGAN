@@ -9,6 +9,7 @@ import torchvision
 from utils import setup_seed, Add_Legs
 from data import skate_data_synth
 from tqdm import tqdm
+import torchvision
 # from pytorch3d.io import load_obj
 
 # # datastructures
@@ -152,10 +153,10 @@ if __name__ == '__main__':
     print(f"dataset len = {len(dataset)}")
     for img, _, _, _, id in tqdm(iter(dl)):
         # print(f'id: {id}')
-        # print(img.shape)
+        print(img.shape, flush=True)
         print(img.max(), flush=True)
-        torch.save(img.permute(1, 2, 0), path.join(synth_frames_path, f'{id.item()}.jpg')) 
-
+        # torch.save(img.squeeze().permute(1, 2, 0), path.join(synth_frames_path, f'{id.item()}.jpg')) 
+        torchvision.utils.save_image(img.squeeze().cpu(), path.join(synth_frames_path, f'{id.item()}.jpg'))
     # batch_size = 8
     # setup_seed(8)
     # pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
