@@ -70,8 +70,7 @@ class skate_data_synth(Dataset):
             if id.isnumeric() and id in labels:
                 self.images.append(file)
                 self.labels.append(labels[id])
-                self.ids.append(int(id))
-                print(id)
+                self.ids.append(torch.tensor([int(id)]))
 
         print(f"{len(self.images)} valid files found at {image_path}")
         print(f'{len(self.backgrounds)} found at {background_path}')
