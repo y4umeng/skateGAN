@@ -44,9 +44,9 @@ if __name__ == '__main__':
                                Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
     val_transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
     train_dataset = skate_data_synth('data/batb1k/synthetic_frames128', 'data/batb1k/background128', 'data/batb1k/poses128.csv', train_transform)
-    val_dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames', 'data/batb1k/test_synthetic_frame_poses_FIXED.csv', val_transform)
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=2)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=2)
+    val_dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/poses128.csv', val_transform)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=4)
     print(f'Batch size: {load_batch_size}')
 
     # Initialize model
@@ -64,7 +64,7 @@ if __name__ == '__main__':
             model = nn.DataParallel(model)
 
     loss_fn = torch.nn.MSELoss()
-    weights = torch.tensor([0.0, 1.0, 1.0], device=device)
+    weights = torch.tensor([1.0, 1.0, 1.0], device=device)
     acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())
 
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.999), weight_decay=args.weight_decay)

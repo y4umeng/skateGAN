@@ -139,12 +139,7 @@ import torchvision
 #         if not show_axes:
 #             ax.set_axis_off()
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--device', type=str, default='cuda')
-    args = parser.parse_args()
-    device = args.device
-    print(f"Device: {device}")
+def convert_pts_to_imgs():
     synth_frames_path = 'data/batb1k/test_synthetic_frames128'
     csv_path = 'data/batb1k/test_synthetic_poses128.csv'
     transform = Add_Legs('data/batb1k/leg_masks128')
@@ -152,11 +147,15 @@ if __name__ == '__main__':
     dl = torch.utils.data.DataLoader(dataset, 1, shuffle=False, num_workers=2)
     print(f"dataset len = {len(dataset)}")
     for img, _, _, _, id in tqdm(iter(dl)):
-        # print(f'id: {id}')
-        print(img.shape, flush=True)
-        print(img.max(), flush=True)
-        # torch.save(img.squeeze().permute(1, 2, 0), path.join(synth_frames_path, f'{id.item()}.jpg')) 
         torchvision.utils.save_image(img.squeeze().cpu(), path.join(synth_frames_path, f'{id.item()}.jpg'))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--device', type=str, default='cuda')
+    args = parser.parse_args()
+    device = args.device
+    print(f"Device: {device}")
+   
     # batch_size = 8
     # setup_seed(8)
     # pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
