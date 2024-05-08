@@ -1,11 +1,13 @@
-import numpy as np
 from torch.utils.data import Dataset
 from glob import glob
 from os import path
 from PIL import Image
 import torch.nn as nn
 import torch
+import torchvision
+import random
 import csv
+from utils import add_background_image
 
 class skate_data(Dataset):
     def __init__(self, data_path, label_csv_path, device, transform):
@@ -56,4 +58,20 @@ class skate_data_pretrain(Dataset):
 
     def __getitem__(self, idx):
         return self.transform(Image.open(self.files[idx])).to(self.device)
+    
+
+class skate_data_synthetic(Dataset):
+    def __init__(self, image_path, background_path, device, transform=nn.Identity()):
+        self.transform = transform
+        self.device = device
+        self.images = glob(path.join(image_path, '*.pt'))
+        self.backgrounds = glob(path.join(background_path, '*.jpg'))
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        background = torchvision.transforms.functional.pil_to_tensor(Image.open(random.choice(self.backgrounds)))
+        img = torch.load(self.images[idx])
+        img = add_background_image(img[...,:3], img[...,3], background, 1)
+        return self.transform(img).to(self.device)
    

@@ -44,3 +44,14 @@ class Add_Legs(object):
         return img * mask + legs
     def __repr__(self):
         return "adding random legs augmentation"
+
+def add_background_image(images, alpha, background_image, batch_size):
+  print(f'background: {background_image.shape}')
+  print(f'images: {images.shape}')
+  print(f'alpha: {alpha.shape}')
+  alpha = torch.ceil(alpha)
+  reg_mask = alpha == 0.0
+  inv_mask = alpha != 0.0
+
+  images_with_background = images * inv_mask.unsqueeze(dim = -1) + background_image.unsqueeze(0).repeat(batch_size, 1, 1, 1) * reg_mask.unsqueeze(-1)
+  return images_with_background

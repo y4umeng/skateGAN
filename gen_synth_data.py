@@ -150,16 +150,14 @@ if __name__ == '__main__':
     csv_path = 'data/batb1k/synthetic_poses128.csv'
     synth_frames_path = 'data/batb1k/synthetic_frames128'
     
-    if not path.isfile(csv_path):
-        fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
-        with open(csv_path, 'w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames = fields)
-            writer.writeheader()
+    # if not path.isfile(csv_path):
+    #     fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
+    #     with open(csv_path, 'w', newline='') as file:
+    #         writer = csv.DictWriter(file, fieldnames = fields)
+    #         writer.writeheader()
 
-    frame_id = 0
-    count = 0
+    frame_id = 39966
     for _ in range(10000):
-        count += 1
         dist = torch.rand(batch_size) * 0.4 + 0.4
         elev = torch.round(torch.rand(batch_size) * 360)
         azim = torch.round(torch.rand(batch_size) * 180)
@@ -174,4 +172,4 @@ if __name__ == '__main__':
     # print(f"Images: {images.shape}")
     # print(f'Time: {time.time() - start}')
     # image_grid(images.cpu())
-    print(f"Saved... {count}")
+    print(f"Saved... {frame_id}")
