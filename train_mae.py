@@ -37,7 +37,7 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
 
-    train_transform = Compose([Add_Legs('data/batb1k/leg_masks'), 
+    train_transform = Compose([Add_Legs('data/batb1k/leg_masks128'), 
                                RandomAffine(degrees=0, translate=(0.3,0.3)), 
                                ColorJitter(0.3, 0.3, 0.3),
                                GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)), 
@@ -52,17 +52,19 @@ if __name__ == '__main__':
     # Initialize model
     if args.model_path is not None:
         model = torch.load(args.model_path, map_location=device)
-        model = model.to(device)
         print(f"Loading pretrained model from {args.model_path}")
     elif args.pretrained_encoder_path is not None:
         model = torch.load(args.pretrained_encoder_path, map_location='cpu')
         print(f"Loading encoder from {args.pretrained_encoder_path}")
-        model = skateMAE(model.encoder, embed_dim=124).to(device)
+        model = skateMAE(model.encoder, embed_dim=124)
+        if num_devices > 1:
+            model = nn.DataParallel(model)
     else:
         model = skateMAE(MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).encoder, embed_dim=124).to(device)
         if num_devices > 1:
             model = nn.DataParallel(model)
-
+    model = model.to(device)
+    
     loss_fn = torch.nn.MSELoss()
     weights = torch.tensor([1.0, 1.0, 1.0], device=device)
     acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())
