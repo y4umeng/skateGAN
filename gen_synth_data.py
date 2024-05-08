@@ -148,11 +148,11 @@ if __name__ == '__main__':
     csv_path = 'data/batb1k/test_synthetic_poses128.csv'
     transform = Add_Legs('data/batb1k/leg_masks128')
     dataset = skate_data_synth(synth_frames_path, 'data/batb1k/backgrounds128', csv_path, transform=transform)
-    dl = torch.utils.data.DataLoader(dataset, 2, shuffle=False, num_workers=2)
+    dl = torch.utils.data.DataLoader(dataset, 1, shuffle=False, num_workers=2)
     print(f"dataset len = {len(dataset)}")
     for img, _, _, _, id in tqdm(iter(dl)):
         print(f'id: {id}')
-        print(img.shape)
+        # print(img.shape)
         # torch.save(img, path.join(synth_frames_path, f'{id}.jpg')) 
 
     # batch_size = 8
