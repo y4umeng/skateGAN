@@ -43,7 +43,7 @@ if __name__ == '__main__':
                                GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)), 
                                Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
     val_transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    train_dataset = skate_data_synth('data/batb1k/synthetic_frames128', 'data/batb1k/background128', 'data/batb1k/poses128.csv', train_transform)
+    train_dataset = skate_data_synth('data/batb1k/synthetic_frames128', 'data/batb1k/backgrounds128', 'data/batb1k/poses128.csv', train_transform)
     val_dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/poses128.csv', val_transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=4)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     elif args.pretrained_encoder_path is not None:
         model = torch.load(args.pretrained_encoder_path, map_location='cpu')
         print(f"Loading encoder from {args.pretrained_encoder_path}")
-        model = skateMAE(model.encoder, embed_dim=124)
+        model = skateMAE(model.module.encoder, embed_dim=124)
         if num_devices > 1:
             model = nn.DataParallel(model)
     else:
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         if num_devices > 1:
             model = nn.DataParallel(model)
     model = model.to(device)
-    
+
     loss_fn = torch.nn.MSELoss()
     weights = torch.tensor([1.0, 1.0, 1.0], device=device)
     acc_fn = lambda pred, label: torch.mean((torch.round(pred.detach()) == label).float())

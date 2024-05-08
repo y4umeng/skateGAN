@@ -99,3 +99,4 @@ if __name__ == '__main__':
         
         ''' save model '''
         torch.save(model, args.model_path)
+        
