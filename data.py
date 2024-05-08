@@ -78,8 +78,8 @@ class skate_data_synth(Dataset):
         return len(self.images)
     def __getitem__(self, idx):
         background = torchvision.transforms.functional.pil_to_tensor(Image.open(random.choice(self.backgrounds)))
-        print("HELLO")
-        print(self.ids[idx])
+        print("HELLO", flush=True)
+        print(self.ids[idx], flush=True)
         img = torch.load(self.images[idx], map_location='cpu').permute(2, 0, 1)
         img = add_background_image(img[:3,...], img[3,...], background)
         labels = self.labels[idx]
