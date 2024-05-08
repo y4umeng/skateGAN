@@ -51,8 +51,8 @@ class skate_data_pretrain(Dataset):
         self.transform = transform
         self.files = []
         for p in data_paths:
-          self.files += glob(path.join(p, '*.jpg'))
-          print(f"{len(self.files)} files found at {p}")
+            self.files += glob(path.join(p, '*.jpg'))
+            print(f"{len(self.files)} files found at {p}")
 
     def __len__(self):
         return len(self.files)
@@ -65,6 +65,8 @@ class skate_data_synth_pretrain(Dataset):
         self.transform = transform
         self.images = glob(path.join(image_path, '*.pt'))
         self.backgrounds = glob(path.join(background_path, '*.jpg'))
+        print(f'{len(self.images)} found at {image_path}')
+        print(f'{len(self.backgrounds)} found at {background_path}')
     def __len__(self):
         return len(self.images)
     def __getitem__(self, idx):
@@ -84,20 +86,20 @@ class skate_data_combined(Dataset):
         if idx < len(self.real): return self.transform(self.real[idx])
         return self.transform(self.synth[idx-len(self.real)])
 
-if __name__ == '__main__':
-    device = 'cpu'
-    transform = Compose([Add_Legs('data/leg_masks128', p=1.0), 
-                         Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
+# if __name__ == '__main__':
+#     device = 'cpu'
+#     transform = Compose([Add_Legs('data/leg_masks128', p=1.0), 
+#                          Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
+#     inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
     
-    train_dataset = skate_data_synthetic('data/synthetic_frames128', 'data/backgrounds128', transform=transform)
-    dataloader = torch.utils.data.DataLoader(train_dataset, 1, shuffle=True, num_workers=1)
-    for img, labels in dataloader:
-        print(img.max())
-        print(img.min())
-        img = inv_normalize(img)
-        print(img.max())
-        print(img.min())
-        plt.imshow(img.squeeze().permute(1, 2, 0))
-        plt.show()
-        break
+#     train_dataset = skate_data_synthetic('data/synthetic_frames128', 'data/backgrounds128', transform=transform)
+#     dataloader = torch.utils.data.DataLoader(train_dataset, 1, shuffle=True, num_workers=1)
+#     for img, labels in dataloader:
+#         print(img.max())
+#         print(img.min())
+#         img = inv_normalize(img)
+#         print(img.max())
+#         print(img.min())
+#         plt.imshow(img.squeeze().permute(1, 2, 0))
+#         plt.show()
+#         break
