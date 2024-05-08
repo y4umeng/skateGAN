@@ -12,7 +12,7 @@ from data import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--seed', type=int, default=888)
     parser.add_argument('--batch_size', type=int, default=4096)
     parser.add_argument('--max_device_batch_size', type=int, default=512)
     parser.add_argument('--base_learning_rate', type=float, default=1.5e-4)
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='checkpoints/skateMAE_pretrain')
+    parser.add_argument('--model_path', type=str, default='checkpoints/pretrain128.pt')
 
     args = parser.parse_args()
 
@@ -34,15 +34,16 @@ if __name__ == '__main__':
 
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
-
-    transform = Compose([ToTensor(), Normalize(0.5, 0.5)])
-    train_dataset = skate_data_pretrain(['data/batb1k/frames', 'data/batb1k/synthetic_frames'], device, transform=transform)
-    val_dataset = skate_data_pretrain(['data/batb1k/val'], device, transform=transform)
+    transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
+    inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
+    train_dataset = skate_data_pretrain(['data/batb1k/frames128'], device, transform=transform)
+    # val_dataset = skate_data_pretrain(['data/batb1k/frames'], device, transform=transform)
+    val_dataset = train_dataset
     print(f'Batch size {load_batch_size}')
     dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    # writer = SummaryWriter(os.path.join('logs', 'batb1k', 'skateMAE-pretrain'))
+    
 
-    model = MAE_ViT(mask_ratio=args.mask_ratio).to(device)
+    model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).to(device)
     if num_devices > 1:
         model = nn.DataParallel(model)
     optim = torch.optim.AdamW(model.parameters(), lr=args.base_learning_rate * args.batch_size / 256, betas=(0.9, 0.95), weight_decay=args.weight_decay)
@@ -77,13 +78,10 @@ if __name__ == '__main__':
             predicted_val_img, mask = model(val_img)
             
             predicted_val_img = predicted_val_img * mask + val_img * (1 - mask)
-            # print(f"predicted val img: {val_img.shape}")
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
-            # print(f"img shape: {img.shape}") 
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
-            # writer.add_image('mae_image', (img + 1) / 2, global_step=e)
-            # print(f"img shape: {img.shape}")
-            torchvision.utils.save_image(img, f"logs/val_epoch_{e}.jpg")
+            img = inv_normalize(img) 
+            torchvision.utils.save_image(img, f"logs/val_epoch128.jpg")
         
         ''' save model '''
-        torch.save(model, f'{args.model_path}_EPOCH{e}.pt')
+        torch.save(model, args.model_path)
