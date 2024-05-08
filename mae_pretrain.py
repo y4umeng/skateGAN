@@ -49,7 +49,7 @@ if __name__ == '__main__':
     combined_dataset = skate_data_combined(real_train_dataset, synth_train_dataset, shared_transform)
     val_dataset = combined_dataset
     print(f'Batch size: {load_batch_size}.')
-    dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=4)
+    dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=8)
     
     # create mae
     if args.load:
