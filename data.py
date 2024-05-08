@@ -71,6 +71,7 @@ class skate_data_synth(Dataset):
                 self.images.append(file)
                 self.labels.append(labels[id])
                 self.ids.append(int(id))
+                print(id)
 
         print(f"{len(self.images)} valid files found at {image_path}")
         print(f'{len(self.backgrounds)} found at {background_path}')
