@@ -153,7 +153,8 @@ if __name__ == '__main__':
     for img, _, _, _, id in tqdm(iter(dl)):
         # print(f'id: {id}')
         # print(img.shape)
-        torch.save(img, path.join(synth_frames_path, f'{id.item()}.jpg')) 
+        print(img.max(), flush=True)
+        torch.save(img.permute(1, 2, 0), path.join(synth_frames_path, f'{id.item()}.jpg')) 
 
     # batch_size = 8
     # setup_seed(8)
