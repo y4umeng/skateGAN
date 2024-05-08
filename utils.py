@@ -16,7 +16,7 @@ def setup_seed(seed=42):
 class binary_erosion(object):
     def __init__ (self):
         self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, bias=False, padding=1)
-        self.conv.weight = torch.nn.Parameter(torch.tensor([[0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0, 0.0]]).unsqueeze(0).unsqueeze(0))
+        self.conv.weight = torch.nn.Parameter(torch.tensor([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]).unsqueeze(0).unsqueeze(0))
     def __call__(self, mask, iterations):
         mask = mask.unsqueeze(0)
         for _ in range(iterations):
@@ -40,18 +40,18 @@ class Add_Legs(object):
         mask = legs[3,...].unsqueeze(0)
         mask = mask == 0.0
         legs = legs[:3,...] / 255.0
-        mask = self.erosion(mask, 6).squeeze(0)
-        return img * mask + legs
+        mask = self.erosion(mask, 2).squeeze(0)
+        return img * mask + legs * ~mask
     def __repr__(self):
         return "adding random legs augmentation"
 
-def add_background_image(images, alpha, background_image, batch_size):
-  print(f'background: {background_image.shape}')
-  print(f'images: {images.shape}')
-  print(f'alpha: {alpha.shape}')
+def add_background_image(images, alpha, background_image):
+#   print(f'background: {background_image.shape}')
+#   print(f'images: {images.shape}')
+#   print(f'alpha: {alpha.shape}')
   alpha = torch.ceil(alpha)
   reg_mask = alpha == 0.0
   inv_mask = alpha != 0.0
-
-  images_with_background = images * inv_mask.unsqueeze(dim = -1) + background_image.unsqueeze(0).repeat(batch_size, 1, 1, 1) * reg_mask.unsqueeze(-1)
+  images_with_background = images * inv_mask.unsqueeze(0) + (background_image / 255.0) * reg_mask.unsqueeze(0)
+#   print(f'final: {images_with_background.shape}')
   return images_with_background

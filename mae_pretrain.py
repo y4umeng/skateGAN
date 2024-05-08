@@ -31,18 +31,24 @@ if __name__ == '__main__':
     print(f"Num devices: {num_devices}")
     batch_size = args.batch_size
     load_batch_size = min(args.max_device_batch_size, batch_size)
-
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
-    transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
-    train_dataset = skate_data_pretrain(['data/batb1k/frames128'], device, transform=transform)
-    # val_dataset = skate_data_pretrain(['data/batb1k/frames'], device, transform=transform)
-    val_dataset = train_dataset
-    print(f'Batch size {load_batch_size}')
-    dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
-    
 
+    # transforms
+    real_transform = Compose([ToTensor()])
+    synth_transform = Compose([Add_Legs('data/batb1k/leg_masks128')]) 
+    shared_transform = Compose([Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])]) 
+    inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
+    
+    # create dataloader
+    real_train_dataset = skate_data_pretrain(['data/batb1k/frames128'], transform=real_transform)
+    synth_train_dataset = skate_data_synth_pretrain('data/batb1k/synthetic_frames128', 'data/batb1k/backgrounds128', transform=synth_transform)
+    combined_dataset = skate_data_combined(real_train_dataset, synth_train_dataset, shared_transform)
+    val_dataset = real_train_dataset
+    print(f'Batch size: {load_batch_size}.')
+    dataloader = torch.utils.data.DataLoader(combined_dataset, load_batch_size, shuffle=True, num_workers=4)
+    
+    # create mae
     model = MAE_ViT(mask_ratio=args.mask_ratio, image_size=128, patch_size=8).to(device)
     if num_devices > 1:
         model = nn.DataParallel(model)
