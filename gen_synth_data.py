@@ -6,8 +6,9 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import csv
 import torchvision
-from utils import setup_seed
-
+from utils import setup_seed, Add_Legs
+from data import skate_data_synth
+from tqdm import tqdm
 from pytorch3d.io import load_obj
 
 # datastructures
@@ -143,33 +144,42 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = args.device
     print(f"Device: {device}")
-
-    batch_size = 8
-    setup_seed(8)
-    pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
-    csv_path = 'data/batb1k/test_synthetic_poses128.csv'
     synth_frames_path = 'data/batb1k/test_synthetic_frames128'
+    csv_path = 'data/batb1k/test_synthetic_poses128.csv'
+    transform = Add_Legs('data/batb1k/leg_masks128')
+    dataset = skate_data_synth(synth_frames_path, 'data/batb1k/backgrounds128', csv_path, transform=transform)
+    dl = torch.utils.data.DataLoader(dataset, 1, shuffle=False, num_workers=2)
+
+    for img, _, _, _, id in tqdm(iter(dl)):
+        # print(img.shape)
+        torch.save(img, path.join(synth_frames_path, f'{id}.jpg')) 
+
+    # batch_size = 8
+    # setup_seed(8)
+    # pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
+    # csv_path = 'data/batb1k/test_synthetic_poses128.csv'
+    # synth_frames_path = 'data/batb1k/test_synthetic_frames128'
     
-    if not path.isfile(csv_path):
-        fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
-        with open(csv_path, 'w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames = fields)
-            writer.writeheader()
+    # if not path.isfile(csv_path):
+    #     fields = ['synthetic_frame_id', 'dist', 'elev', 'azim']
+    #     with open(csv_path, 'w', newline='') as file:
+    #         writer = csv.DictWriter(file, fieldnames = fields)
+    #         writer.writeheader()
 
-    frame_id = 0
-    for _ in range(100):
-        dist = torch.rand(batch_size) * 0.4 + 0.4
-        elev = torch.round(torch.rand(batch_size) * 360)
-        azim = torch.round(torch.rand(batch_size) * 180)
-        images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
-        images = torch.cat((images, alphas.unsqueeze(-1)), dim=-1)
+    # frame_id = 400
+    # for _ in range(100):
+    #     dist = torch.rand(batch_size) * 0.4 + 0.4
+    #     elev = torch.round(torch.rand(batch_size) * 360)
+    #     azim = torch.round(torch.rand(batch_size) * 180)
+    #     images, alphas = pg(dist.to(device), elev.to(device), azim.to(device))
+    #     images = torch.cat((images, alphas.unsqueeze(-1)), dim=-1)
 
-        for i in range(batch_size):
-            torch.save(images[i,...], path.join(synth_frames_path, f'{frame_id}.pt'))
-            with open(csv_path, 'a', newline='') as pose_csv:
-                pose_csv.write(f'{frame_id},{dist[i]},{elev[i]},{azim[i]}\n')
-            frame_id += 1
-    # print(f"Images: {images.shape}")
-    # print(f'Time: {time.time() - start}')
-    # image_grid(images.cpu())
-    print(f"Saved... {frame_id}")
+    #     for i in range(batch_size):
+    #         torch.save(images[i,...], path.join(synth_frames_path, f'{frame_id}.pt'))
+    #         with open(csv_path, 'a', newline='') as pose_csv:
+    #             pose_csv.write(f'{frame_id},{dist[i]},{elev[i]},{azim[i]}\n')
+    #         frame_id += 1
+    # # print(f"Images: {images.shape}")
+    # # print(f'Time: {time.time() - start}')
+    # # image_grid(images.cpu())
+    # print(f"Saved... {frame_id}")

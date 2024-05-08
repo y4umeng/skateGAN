@@ -12,9 +12,9 @@ from torchvision.transforms import ToTensor, Compose, Normalize
 import matplotlib.pyplot as plt
 
 class skate_data_synth_test(Dataset):
-    def __init__(self, data_path, label_csv_path, device, transform):
+    def __init__(self, data_path, label_csv_path, transform):
         self.transform = transform
-        self.device = device
+
         files = glob(path.join(data_path, "*.jpg"))
         frame_ids = [f.split('/')[-1].split('.')[0] for f in files]
         labels = {}

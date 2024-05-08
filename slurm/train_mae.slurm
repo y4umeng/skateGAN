@@ -20,11 +20,11 @@
 #SBATCH -p gpu-share
 
 # Use 2 nodes and 80 cores
-#SBATCH -N 1 -n 4 --gres=gpu:2
+#SBATCH -N 2 -n 8 --gres=gpu:8
 
 # Setup runtime environment if necessary
 # For example, setup intel MPI environment
 source .venv/bin/activate
 
 # Run your application
-python train_mae.py --batch_size 128 --model_path checkpoints/skateMAE_epoch_29_valloss_3754.8276095920137.pt
+python train_mae.py --batch_size 128
