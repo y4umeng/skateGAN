@@ -11,7 +11,7 @@ from utils import add_background_image, Add_Legs
 from torchvision.transforms import ToTensor, Compose, Normalize
 import matplotlib.pyplot as plt
 
-class skate_data(Dataset):
+class skate_data_synth_test(Dataset):
     def __init__(self, data_path, label_csv_path, device, transform):
         self.transform = transform
         self.device = device
@@ -45,6 +45,43 @@ class skate_data(Dataset):
     def __getitem__(self, idx):
         labels = self.labels[idx]
         return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2], self.ids[idx]
+    
+class skate_data_synth(Dataset):
+    def __init__(self, image_path, background_path, label_path, transform):
+        self.transform = transform
+        self.backgrounds = glob(path.join(background_path, '*.jpg'))
+
+        files = glob(path.join(image_path, "*.pt"))
+        frame_ids = [f.split('/')[-1].split('.')[0] for f in files]
+        labels = {}
+        with open(label_path, 'r') as data:
+            count = 0
+            for line in csv.reader(data):
+                # skip first line
+                if count == 0: 
+                    count += 1
+                    continue
+                labels[line[0]] = torch.tensor([float(line[1]), float(line[2]) % 360.0, float(line[3]) % 180.0])
+
+        self.images = []
+        self.labels = []
+        self.ids = []
+        for file, id in zip(files, frame_ids):
+            if id.isnumeric() and id in labels:
+                self.images.append(file)
+                self.labels.append(labels[id])
+                self.ids.append(int(id))
+
+        print(f"{len(self.images)} valid files found at {image_path}")
+        print(f'{len(self.backgrounds)} found at {background_path}')
+    def __len__(self):
+        return len(self.images)
+    def __getitem__(self, idx):
+        background = torchvision.transforms.functional.pil_to_tensor(Image.open(random.choice(self.backgrounds)))
+        img = torch.load(self.images[idx], map_location='cpu').permute(2, 0, 1)
+        img = add_background_image(img[:3,...], img[3,...], background)
+        labels = self.labels[idx]
+        return self.transform(img), labels[0], labels[1], labels[2], self.ids[idx]
 
 class skate_data_pretrain(Dataset):
     def __init__(self, data_paths, transform):
