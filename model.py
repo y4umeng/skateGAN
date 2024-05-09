@@ -27,7 +27,7 @@ class skateMAE(torch.nn.Module):
         dist_pred = self.dist_head(features[0])
         elev_pred = self.elev_head(features[0]) * 360
         azim_pred = self.azim_head(features[0]) * 180
-        return dist_pred, elev_pred, azim_pred, features[0]
+        return dist_pred, elev_pred, azim_pred, #features[0]
 
 class skateMAE_Video(torch.nn.Module):
     def __init__(self, encoder : MAE_Encoder, embed_dim : int) -> None:
