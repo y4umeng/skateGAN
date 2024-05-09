@@ -27,7 +27,24 @@ class skateMAE(torch.nn.Module):
         dist_pred = self.dist_head(features[0])
         elev_pred = self.elev_head(features[0]) * 360
         azim_pred = self.azim_head(features[0]) * 180
-        return dist_pred, elev_pred, azim_pred
+        return dist_pred, elev_pred, azim_pred, features[0]
+
+class skateMAE_Video(torch.nn.Module):
+    def __init__(self, encoder : MAE_Encoder, embed_dim : int) -> None:
+        super().__init__()
+        self.mae = skateMAE(encoder, embed_dim)
+        self.dist_head = nn.Sequential(nn.Linear(self.mae.pos_embedding.shape[-1] * 2, embed_dim), nn.Linear(embed_dim, 1))
+        self.elev_head = nn.Sequential(nn.Linear(self.mae.pos_embedding.shape[-1] * 2, embed_dim), nn.Linear(embed_dim, 1))
+        self.azim_head = nn.Sequential(nn.Linear(self.mae.pos_embedding.shape[-1] * 2, embed_dim), nn.Linear(embed_dim, 1))
+    def forward(self, imgs, prev_imgs):
+        _, _, _, curr_features =  self.mae(imgs)
+        _, _, _, prev_features = self.mae(prev_imgs)
+        features = torch.cat((curr_features, prev_features), dim=-1)
+        dist_pred = self.dist_head(features[0])
+        elev_pred = self.elev_head(features[0]) * 360
+        azim_pred = self.azim_head(features[0]) * 180
+        return dist_pred, elev_pred, azim_pred 
+
 
 # class skateGAN(torch.nn.Module):
 #     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:

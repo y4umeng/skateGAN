@@ -23,6 +23,8 @@ def get_poses(model_path, clip_id, device):
     model.eval()
     with torch.no_grad():
         dist_preds, elev_preds, azim_preds = model(real_frames)
+        elev_preds = torch.round(elev_preds)
+        azim_preds = torch.round(azim_preds)
         all_data = torch.stack((dist_preds, elev_preds, azim_preds), dim=1)
         print(f"Final data shape: {all_data.shape}")
         torch.save(all_data.cpu(), f"inference/clip{clip_id}_pred128.pt")

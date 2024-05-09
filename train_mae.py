@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--warmup_epoch', type=int, default=5)
     parser.add_argument('--pretrained_encoder_path', type=str, default='checkpoints/pretrain128.pt')
     parser.add_argument('--model_path', type=str, default=None) 
-    parser.add_argument('--output_model_path', type=str, default='checkpoints/skatemae128.pt')
+    parser.add_argument('--output_model_path', type=str, default='checkpoints/skatemae128_NOLEGS.pt')
 
     args = parser.parse_args()
 
@@ -37,8 +37,12 @@ if __name__ == '__main__':
     assert batch_size % load_batch_size == 0
     steps_per_update = batch_size // load_batch_size
 
-    train_transform = Compose([Add_Legs('data/batb1k/leg_masks128'), 
-                               RandomAffine(degrees=0, translate=(0.3,0.3)), 
+    # train_transform = Compose([Add_Legs('data/batb1k/leg_masks128'), 
+    #                            RandomAffine(degrees=0, translate=(0.3,0.3)), 
+    #                            ColorJitter(0.3, 0.3, 0.3),
+    #                            GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)), 
+    #                            Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
+    train_transform = Compose([RandomAffine(degrees=0, translate=(0.3,0.3)), 
                                ColorJitter(0.3, 0.3, 0.3),
                                GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)), 
                                Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
