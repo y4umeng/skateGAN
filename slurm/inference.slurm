@@ -27,4 +27,4 @@
 source .venv/bin/activate
 
 # Run your application
-python inference.py --model_path checkpoints/skateMAE_epoch_111_valloss_3835.551323784722_WITHLEGS.pt
+python inference.py --clip_id 43 
