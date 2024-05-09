@@ -136,9 +136,9 @@ def process_video(video_directory,
     print(f'Processing video {vid_id}.')
     frames = vid[0]
     if frames.shape[1] != 1080 or frames.shape[2] != 1920 or frames.shape[3] != 3:
-        print(f'Video is of incorrect shape {frames.shape}')
+        print(f'Video {vid_id} is of incorrect shape {frames.shape}', flush=True)
         return
-    print(f"Would process {vid_id}. Shape: {frames.shape}")
+    print(f"Would process {vid_id}. Shape: {frames.shape}", flush=True)
     return
     frame_id = 0
     for i in range(frames.shape[0]):
@@ -210,6 +210,7 @@ if __name__ == '__main__':
     box_model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm").to(device)
     box_model.eval()
     leg_model.eval()
+    print("Beginning to process videos...")
     for vp in video_paths:
         if not vp.split('.')[0].isnumeric(): 
             print(f"Received incorrect video path {vp}")
