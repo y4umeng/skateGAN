@@ -15,23 +15,7 @@ from PIL import Image
 
 def get_poses(model_path, clip_id, device):
     transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    real_frames = glob(f'data/batb1k/frames128/{clip_id}_*')
-    real_frame_paths = {}
-    print(f'Num real frames: {len(real_frames)}')
-    for f in real_frames:
-        splt = f.split('/')[-1].split('.')[0].split('_')
-        real_frame_paths[int(splt[-1])] = f
-    
-    print(f"Num frames: {len(real_frame_paths)}")
-    # print(sorted(frame_paths.keys()))
-
-    real_frames = torch.zeros((max(real_frame_paths.keys())+1, 3, 128, 128))
-    for frame_id in real_frame_paths.keys():
-        frame = transform(Image.open(real_frame_paths[frame_id]))
-        real_frames[frame_id,...] = frame
-        # print(fp, frame.shape)
-    print(f"Frames shape: {real_frames.shape}")
-    real_frames = real_frames.to(device)
+    real_frames = get_clip_frames(clip_id, transform).to(device)
 
     model = torch.load(model_path, map_location=device).module
     model = model.to(device)

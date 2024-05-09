@@ -6,6 +6,7 @@ from glob import glob
 from os import path 
 import torch.nn as nn
 from moviepy.editor import ImageSequenceClip
+from PIL import Image
 
 def setup_seed(seed=42):
     torch.manual_seed(seed)
@@ -56,3 +57,21 @@ def add_background_image(images, alpha, background_image):
   images_with_background = images * inv_mask.unsqueeze(0) + (background_image / 255.0) * reg_mask.unsqueeze(0)
 #   print(f'final: {images_with_background.shape}')
   return images_with_background
+
+def get_clip_frames(clip_id, transform, directory='data/batb1k/frames128/'):
+    real_frames = glob(path.join(directory, f'{clip_id}_*'))
+    real_frame_paths = {}
+    print(f'Num real frames: {len(real_frames)}')
+    for f in real_frames:
+        splt = f.split('/')[-1].split('.')[0].split('_')
+        real_frame_paths[int(splt[-1])] = f
+    
+    print(f"Num frames: {len(real_frame_paths)}")
+
+    real_frames = torch.zeros((max(real_frame_paths.keys())+1, 3, 128, 128))
+    for frame_id in real_frame_paths.keys():
+        frame = transform(Image.open(real_frame_paths[frame_id]))
+        real_frames[frame_id,...] = frame
+        # print(fp, frame.shape)
+    print(f"Frames shape: {real_frames.shape}")
+    return real_frames
