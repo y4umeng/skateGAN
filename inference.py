@@ -26,7 +26,7 @@ def get_poses(model_path, clip_id, device):
     # print(sorted(frame_paths.keys()))
 
     real_frames = torch.zeros((max(real_frame_paths.keys())+1, 3, 128, 128))
-    for frame_id in range(real_frames.shape[0]):
+    for frame_id in real_frame_paths.keys():
         frame = transform(Image.open(real_frame_paths[frame_id]))
         real_frames[frame_id,...] = frame
         # print(fp, frame.shape)
