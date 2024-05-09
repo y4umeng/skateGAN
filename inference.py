@@ -15,7 +15,7 @@ from PIL import Image
 
 def get_poses(model_path, clip_id, device):
     transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    real_frames = glob(f'data/batb1k/frames/{clip_id}_*.jpg')
+    real_frames = glob(f'data/batb1k/frames128/{clip_id}_*')
     real_frame_paths = {}
     print(f'Num real frames: {len(real_frames)}')
     for f in real_frames:
