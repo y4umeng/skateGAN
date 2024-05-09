@@ -5,6 +5,7 @@ import argparse
 from glob import glob 
 from os import path 
 import torch.nn as nn
+from moviepy.editor import ImageSequenceClip
 
 def setup_seed(seed=42):
     torch.manual_seed(seed)

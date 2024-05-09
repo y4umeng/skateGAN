@@ -12,7 +12,6 @@ from utils import *
 from glob import glob
 from os import path
 from PIL import Image
-from gen_synth_data import pose_generator
 
 def get_poses(model_path, clip_id, device):
     transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
@@ -43,24 +42,12 @@ def get_poses(model_path, clip_id, device):
         all_data = torch.stack((dist_preds, elev_preds, azim_preds), dim=1)
         print(f"Final data shape: {all_data.shape}")
         torch.save(all_data.cpu(), f"inference/clip{clip_id}_pred128.pt")
-    return all_data, real_frames
+    return
 
-def generate_gif(preds, clip_id, real_frames):
-    pg = pose_generator('data/board_model/skateboard.obj', 128, 1, device)
-    synth_frames = torch.zeros_like(real_frames)
-
-    for i in range(synth_frames.shape[0]):
-        frame = pg(preds[i,0], preds[i,1], preds[i,2])
-        print(f"Synth frame: {frame.shape}, {frame.max()}")
-        synth_frames[i,...] = frame
-
-    gif_frames = torch.cat((real_frames, synth_frames), dim=-1)
-    print(f'GIF frames shape: {gif_frames.shape}')
-
-    real_gif = gif_frames.permute(0, 2, 3, 1).numpy() * 255
-    clip = ImageSequenceClip(list(real_gif), fps=5)
+def pt_to_gif(path, clip_id):
+    frames = torch.load(path)
+    clip = ImageSequenceClip(list(frames), fps=5)
     clip.write_gif(f'inference/clip{clip_id}_128.gif', fps=5)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -74,6 +61,6 @@ if __name__ == '__main__':
     print(f"Device: {device}")
     print(f"Num GPUs: {num_devices}")
 
-    preds, real_frames = get_poses(args.model_path, args.clip_id, device)
-    generate_gif(preds, args.clip_id, real_frames)
+    get_poses(args.model_path, args.clip_id, device)
+    # generate_gif(preds, args.clip_id, real_frames)
     print(f"Done with clip {args.clip_id}")

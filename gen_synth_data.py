@@ -149,6 +149,22 @@ def convert_pts_to_imgs():
     for img, _, _, _, id in tqdm(iter(dl)):
         torchvision.utils.save_image(img.squeeze().cpu(), path.join(synth_frames_path, f'{id.item()}.jpg'))
 
+def generate_gif_frames(preds, clip_id, real_frames):
+    pg = pose_generator('data/board_model/skateboard.obj', 128, 1, device)
+    synth_frames = torch.zeros_like(real_frames)
+
+    for i in range(synth_frames.shape[0]):
+        frame = pg(preds[i,0], preds[i,1], preds[i,2])
+        print(f"Synth frame: {frame.shape}, {frame.max()}")
+        synth_frames[i,...] = frame
+
+    gif_frames = torch.cat((real_frames, synth_frames), dim=-1)
+    print(f'GIF frames shape: {gif_frames.shape}')
+
+    real_gif = gif_frames.permute(0, 2, 3, 1).numpy() * 255
+    clip = ImageSequenceClip(list(real_gif), fps=5)
+    clip.write_gif(f'inference/clip{clip_id}_128.gif', fps=5)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', type=str, default='cuda')
