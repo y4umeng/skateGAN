@@ -7,6 +7,7 @@ from os import path
 import torch.nn as nn
 from moviepy.editor import ImageSequenceClip
 from PIL import Image
+from torchvision.transforms import ToTensor, Compose, Normalize
 
 def setup_seed(seed=42):
     torch.manual_seed(seed)
@@ -58,7 +59,7 @@ def add_background_image(images, alpha, background_image):
 #   print(f'final: {images_with_background.shape}')
   return images_with_background
 
-def get_clip_frames(clip_id, transform, directory='data/batb1k/frames128/'):
+def get_clip_frames(clip_id, transform=Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])]), directory='data/batb1k/frames128/'):
     real_frames = glob(path.join(directory, f'{clip_id}_*'))
     real_frame_paths = {}
     print(f'Num real frames: {len(real_frames)}')
@@ -72,6 +73,5 @@ def get_clip_frames(clip_id, transform, directory='data/batb1k/frames128/'):
     for frame_id in real_frame_paths.keys():
         frame = transform(Image.open(real_frame_paths[frame_id]))
         real_frames[frame_id,...] = frame
-        # print(fp, frame.shape)
     print(f"Frames shape: {real_frames.shape}")
     return real_frames

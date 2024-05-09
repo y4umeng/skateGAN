@@ -6,7 +6,7 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import csv
 import torchvision
-from utils import setup_seed, Add_Legs
+from utils import setup_seed, Add_Legs, get_clip_frames
 from data import skate_data_synth
 from tqdm import tqdm
 import torchvision
@@ -149,21 +149,19 @@ def convert_pts_to_imgs():
     for img, _, _, _, id in tqdm(iter(dl)):
         torchvision.utils.save_image(img.squeeze().cpu(), path.join(synth_frames_path, f'{id.item()}.jpg'))
 
-def generate_gif_frames(preds, clip_id, real_frames):
+def generate_gif_frames(preds, clip_id):
     pg = pose_generator('data/board_model/skateboard.obj', 128, 1, device)
+    real_frames = get_clip_frames(clip_id)
     synth_frames = torch.zeros_like(real_frames)
 
     for i in range(synth_frames.shape[0]):
         frame = pg(preds[i,0], preds[i,1], preds[i,2])
-        print(f"Synth frame: {frame.shape}, {frame.max()}")
         synth_frames[i,...] = frame
-
-    gif_frames = torch.cat((real_frames, synth_frames), dim=-1)
-    print(f'GIF frames shape: {gif_frames.shape}')
-
-    real_gif = gif_frames.permute(0, 2, 3, 1).numpy() * 255
-    clip = ImageSequenceClip(list(real_gif), fps=5)
-    clip.write_gif(f'inference/clip{clip_id}_128.gif', fps=5)
+    print(f"Synth frames: {synth_frames.shape}, Max: {synth_frames.max()}")
+    print(f"Real frames: {real_frames.shape}, Max: {real_frames.max()}")
+    gif_frames = torch.cat((real_frames, synth_frames), dim=-1).permute(0, 2, 3, 1).numpy() * 255
+    print(f'GIF frames shape: {gif_frames.shape}, Max: {gif_frames.max()}')
+    torch.save(gif_frames, f'inference/clip{clip_id}_FinalFrames128.pt') 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -171,7 +169,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = args.device
     print(f"Device: {device}")
-   
+    clip_id = 43
+    generate_gif_frames(torch.load(f"inference/clip{clip_id}_pred128.pt").squeeze(), clip_id)
+
     # batch_size = 8
     # setup_seed(8)
     # pg = pose_generator('/home/ywongar/skateGAN/data/board_model/skateboard.obj', 128, batch_size, device)
