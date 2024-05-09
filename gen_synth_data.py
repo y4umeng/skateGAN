@@ -154,9 +154,8 @@ def generate_gif_frames(preds, clip_id, device):
     real_frames = get_clip_frames(clip_id)
     synth_frames = torch.zeros_like(real_frames)
 
-    for i in range(synth_frames.shape[0]):
+    for i in tqdm(range(synth_frames.shape[0])):
         frame, _ = pg(preds[i,0], preds[i,1], preds[i,2])
-        print(f'frame: {frame.shape}')
         synth_frames[i,...] = frame.squeeze().permute(2, 0, 1)
     print(f"Synth frames: {synth_frames.shape}, Max: {synth_frames.max()}")
     print(f"Real frames: {real_frames.shape}, Max: {real_frames.max()}")

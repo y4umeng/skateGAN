@@ -59,7 +59,8 @@ def add_background_image(images, alpha, background_image):
 #   print(f'final: {images_with_background.shape}')
   return images_with_background
 
-def get_clip_frames(clip_id, transform=Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])]), directory='data/batb1k/frames128/'):
+def get_clip_frames(clip_id, transform=Compose([ToTensor()]), directory='data/batb1k/frames128/'):
+
     real_frames = glob(path.join(directory, f'{clip_id}_*'))
     real_frame_paths = {}
     print(f'Num real frames: {len(real_frames)}')

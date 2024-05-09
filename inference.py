@@ -14,7 +14,8 @@ from os import path
 from PIL import Image
 
 def get_poses(model_path, clip_id, device):
-    real_frames = get_clip_frames(clip_id).to(device)
+    transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
+    real_frames = get_clip_frames(clip_id, transform=transform).to(device)
 
     model = torch.load(model_path, map_location=device).module
     model = model.to(device)
