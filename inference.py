@@ -30,8 +30,10 @@ def get_poses(model_path, clip_id, device):
 
 def pt_to_gif(path, clip_id):
     frames = torch.load(path)
+    print(f"Frames: {frames.shape}, Max: {frames.max()}")
     clip = ImageSequenceClip(list(frames), fps=5)
     clip.write_gif(f'inference/clip{clip_id}_128.gif', fps=5)
+    print(f'Saved GIF to {path}')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -44,7 +46,7 @@ if __name__ == '__main__':
     num_devices = torch.cuda.device_count() 
     print(f"Device: {device}")
     print(f"Num GPUs: {num_devices}")
-
-    get_poses(args.model_path, args.clip_id, device)
-    # generate_gif(preds, args.clip_id, real_frames)
-    print(f"Done with clip {args.clip_id}")
+    pt_to_gif('inference/clip43_FinalFrames128.pt', 43)
+    # get_poses(args.model_path, args.clip_id, device)
+    # # generate_gif(preds, args.clip_id, real_frames)
+    # print(f"Done with clip {args.clip_id}")
