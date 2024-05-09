@@ -156,7 +156,7 @@ def generate_gif_frames(preds, clip_id, device):
 
     for i in range(synth_frames.shape[0]):
         frame, _ = pg(preds[i,0], preds[i,1], preds[i,2])
-        synth_frames[i,...] = frame
+        synth_frames[i,...] = frame.permute(2, 0, 1)
     print(f"Synth frames: {synth_frames.shape}, Max: {synth_frames.max()}")
     print(f"Real frames: {real_frames.shape}, Max: {real_frames.max()}")
     gif_frames = torch.cat((real_frames, synth_frames), dim=-1).permute(0, 2, 3, 1).numpy() * 255
