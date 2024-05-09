@@ -138,6 +138,8 @@ def process_video(video_directory,
     if frames.shape[1] != 1080 or frames.shape[2] != 1920 or frames.shape[3] != 3:
         print(f'Video is of incorrect shape {frames.shape}')
         return
+    print(f"Would process {vid_id}. Shape: {frames.shape}")
+    return
     frame_id = 0
     for i in range(frames.shape[0]):
         start = time.time()

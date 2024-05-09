@@ -33,7 +33,7 @@ def get_poses(model_path, clip_id, device):
     print(f"Frames shape: {real_frames.shape}")
     real_frames = real_frames.to(device)
 
-    model = torch.load(model_path, map_location=device)
+    model = torch.load(model_path, map_location=device).module
     model = model.to(device)
 
     model.eval()
