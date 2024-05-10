@@ -9,6 +9,13 @@ import av
 import csv 
 import time
 
+'''
+Processes a directory of .mov files (real world skate clips)
+Each video is converted into a tensor of frames
+Each frame is processed using object detection and semantic segmentation
+to create a crop of the skateboard and to create the "leg masks"
+'''
+
 def square_crop(image, box):
     width = box[2] - box[0]
     height = box[3] - box[1]
@@ -139,7 +146,7 @@ def process_video(video_directory,
         print(f'Video {vid_id} is of incorrect shape {frames.shape}', flush=True)
         return
     print(f"Would process {vid_id}. Shape: {frames.shape}", flush=True)
-    return
+    
     frame_id = 0
     for i in range(frames.shape[0]):
         start = time.time()
@@ -197,11 +204,11 @@ if __name__ == '__main__':
     old_bbox_csv_path = 'data/batb1k/bounding_box_data.csv'
     old_bbox = get_old_bbox(old_bbox_csv_path) 
     print(f"{len(old_bbox)} previous bboxs found.")
-    # if not path.isfile(bbox_csv_path):
-    #     fields = ['frame_id', 'clip_id', 'frame_num', 'x1', 'y1', 'x2', 'y2']
-    #     with open(bbox_csv_path, 'w', newline='') as file:
-    #         writer = csv.DictWriter(file, fieldnames = fields)
-    #         writer.writeheader()
+    if not path.isfile(bbox_csv_path):
+        fields = ['frame_id', 'clip_id', 'frame_num', 'x1', 'y1', 'x2', 'y2']
+        with open(bbox_csv_path, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames = fields)
+            writer.writeheader()
 
     checkpoint_name = 'facebook/maskformer-swin-small-coco'
     leg_model = MaskFormerForInstanceSegmentation.from_pretrained(checkpoint_name).to(device)

@@ -22,7 +22,17 @@ from pytorch3d.renderer import (
     TexturesAtlas, PointLights
 )
 
+'''
+Generating synthetic data. 
+'''
+
 class pose_generator(torch.nn.Module):
+    '''
+    Rendering engine using Pytorch3D to render skateboard using FOV camera
+    Given distance, elevation, and azimuth data, it renders the skateboard object at (.obj file)
+    at the given camera angle and returns the image in tensor form.
+    Works with batched data.  
+    '''
     def __init__(self, obj_path, img_shape, batch_size, device) -> None:
         super().__init__()
         # Get vertices, faces, and auxiliary information:
@@ -140,6 +150,9 @@ def image_grid(
             ax.set_axis_off()
 
 def convert_pts_to_imgs():
+    '''
+    Converts synthetic images in pt form to jpgs with random background and leg masks
+    '''
     synth_frames_path = 'data/batb1k/test_synthetic_frames128'
     csv_path = 'data/batb1k/test_synthetic_poses128.csv'
     transform = Add_Legs('data/batb1k/leg_masks128')
@@ -150,6 +163,9 @@ def convert_pts_to_imgs():
         torchvision.utils.save_image(img.squeeze().cpu(), path.join(synth_frames_path, f'{id.item()}.jpg'))
 
 def generate_gif_frames(preds, clip_id, device):
+    '''
+    Used to create gifs of predicted rotation estimation for presentation
+    '''
     pg = pose_generator('data/board_model/skateboard.obj', 128, 1, device)
     real_frames = get_clip_frames(clip_id)
     synth_frames = torch.zeros_like(real_frames)
@@ -163,14 +179,14 @@ def generate_gif_frames(preds, clip_id, device):
     print(f'GIF frames shape: {gif_frames.shape}, Max: {gif_frames.max()}')
     torch.save(gif_frames, f'inference/clip{clip_id}_FinalFrames128.pt') 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--device', type=str, default='cuda')
-    args = parser.parse_args()
-    device = args.device
-    print(f"Device: {device}")
-    clip_id = 43
-    generate_gif_frames(torch.load(f"inference/clip{clip_id}_pred128.pt").squeeze(), clip_id, device)
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('--device', type=str, default='cuda')
+#     args = parser.parse_args()
+#     device = args.device
+#     print(f"Device: {device}")
+#     clip_id = 43
+#     generate_gif_frames(torch.load(f"inference/clip{clip_id}_pred128.pt").squeeze(), clip_id, device)
 
     # batch_size = 8
     # setup_seed(8)

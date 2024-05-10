@@ -9,6 +9,11 @@ from model import *
 from utils import setup_seed
 from data import *
 
+'''
+Pretraining MAE on image reconstruction with both real and synthetic data
+Modified from https://github.com/IcarusWizard/MAE/blob/main/mae_pretrain.py
+'''
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=888)
@@ -19,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--mask_ratio', type=float, default=0.75)
     parser.add_argument('--total_epoch', type=int, default=2000)
     parser.add_argument('--warmup_epoch', type=int, default=200)
-    parser.add_argument('--model_path', type=str, default='checkpoints/pretrain128.pt')
+    parser.add_argument('--model_path', type=str, default='checkpoints/pretrain128_2.pt')
     parser.add_argument('-load', action='store_true')
 
     args = parser.parse_args()
@@ -98,5 +103,5 @@ if __name__ == '__main__':
             print("Saved img")
             
         ''' save model '''
-        # torch.save(model, args.model_path)
+        torch.save(model, args.model_path)
         

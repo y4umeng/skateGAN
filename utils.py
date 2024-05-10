@@ -5,7 +5,7 @@ import argparse
 from glob import glob 
 from os import path 
 import torch.nn as nn
-from moviepy.editor import ImageSequenceClip
+# from moviepy.editor import ImageSequenceClip
 from PIL import Image
 from torchvision.transforms import ToTensor, Compose, Normalize
 

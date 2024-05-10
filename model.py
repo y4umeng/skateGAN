@@ -5,6 +5,10 @@ from mae import *
 from utils import *
 
 class skateMAE(torch.nn.Module):
+    '''
+    SkateMAE model as described in paper. Modified from 
+    https://github.com/IcarusWizard/MAE/blob/main/model.py
+    '''
     def __init__(self, encoder : MAE_Encoder, embed_dim : int) -> None:
         super().__init__()
         self.cls_token = encoder.cls_token
@@ -30,6 +34,9 @@ class skateMAE(torch.nn.Module):
         return dist_pred, elev_pred, azim_pred, #features[0]
 
 class skateMAE_Video(torch.nn.Module):
+    '''
+    In progress
+    '''
     def __init__(self, encoder : MAE_Encoder, embed_dim : int) -> None:
         super().__init__()
         self.mae = skateMAE(encoder, embed_dim)
@@ -44,20 +51,3 @@ class skateMAE_Video(torch.nn.Module):
         elev_pred = self.elev_head(features[0]) * 360
         azim_pred = self.azim_head(features[0]) * 180
         return dist_pred, elev_pred, azim_pred 
-
-
-# class skateGAN(torch.nn.Module):
-#     def __init__(self, obj_path, batch_size, device, img_size=64, patch_size=4) -> None:
-#         super().__init__()
-#         self.encoder = MAE_Encoder(image_size=img_size, patch_size=patch_size)
-#         self.decoder = MAE_Decoder()
-#         self.camera_position_heads = [ViT_Classifier(self.encoder, 180)] * 3
-#         self.pose_image_generator = pose_generator(obj_path, img_size, batch_size, device)
-#     def forward(self, curr_imgs, prev_imgs):
-#         encoded_curr = self.encoder(curr_imgs)
-#         encoded_prev = self.encoder(prev_imgs)
-#         cam_pos = [head(encoded_curr) for head in self.camera_position_heads]
-#         generated_poses = pose_generator(cam_pos[0], cam_pos[1], cam_pos[2])
-#         encoded_gen = self.encoder(generated_poses)
-#         predicted_imgs = self.decoder(encoded_prev, encoded_gen)
-#         return predicted_imgs, cam_pos

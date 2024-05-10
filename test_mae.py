@@ -1,14 +1,15 @@
 import argparse
-import math
 import torch
-# from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import ToTensor, Compose, Normalize
 from tqdm import tqdm
 
 from model import *
 from utils import setup_seed
 from data import skate_data_synth_test
-# python test_mae --model_path #SBATCH -N 1 -n 4 --gres=gpu:1
+
+'''
+Test SkateMAE on test set of synthetic images with ground truth labels
+'''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -16,7 +17,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--max_device_batch_size', type=int, default=128)
     parser.add_argument('--model_path', type=str, default='')
-
+    parser.add_argument('--frames_path', type=str, default='data/batb1k/test_synthetic_frames128')
+    parser.add_argument('--poses_path', type=str, default='data/batb1k/test_synthetic_poses128.csv')
     args = parser.parse_args()
 
     setup_seed(args.seed)
@@ -32,7 +34,7 @@ if __name__ == '__main__':
     steps_per_update = batch_size // load_batch_size
 
     transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/test_synthetic_poses128.csv', transform)
+    dataset = skate_data_synth_test(args.frames_path, args.poses_path, transform)
     dataloader = torch.utils.data.DataLoader(dataset, load_batch_size, shuffle=False, num_workers=2)
     
     print(f'Batch size: {load_batch_size}')

@@ -12,6 +12,9 @@ from torchvision.transforms import ToTensor, Compose, Normalize
 import matplotlib.pyplot as plt
 
 class skate_data_synth_test(Dataset):
+    '''
+    Dataset for loading jpg synthetic files with ground truth labels in csv form
+    '''
     def __init__(self, data_path, label_csv_path, transform):
         self.transform = transform
 
@@ -47,6 +50,10 @@ class skate_data_synth_test(Dataset):
         return self.transform(Image.open(self.files[idx])), labels[0], labels[1], labels[2], self.ids[idx]
     
 class skate_data_synth(Dataset):
+    '''
+    Dataset for loading synthetic data still in .pt form, along with ground truth labels in csv.
+    Requires directory of background jpgs to choose at random
+    '''
     def __init__(self, image_path, background_path, label_path, transform):
         self.transform = transform
         self.backgrounds = glob(path.join(background_path, '*.jpg'))
@@ -84,6 +91,9 @@ class skate_data_synth(Dataset):
         return self.transform(img), labels[0], labels[1], labels[2], self.ids[idx]
 
 class skate_data_pretrain(Dataset):
+    '''
+    Simple dataset for the real world data in jpg form. No labels.
+    '''
     def __init__(self, data_paths, transform):
         self.transform = transform
         self.files = []
@@ -98,6 +108,9 @@ class skate_data_pretrain(Dataset):
         return self.transform(Image.open(self.files[idx]))
     
 class skate_data_synth_pretrain(Dataset):
+    '''
+    Dataset for loading synthetic data without labels for pretraining MAE on image reconstruction
+    '''
     def __init__(self, image_path, background_path, transform):
         self.transform = transform
         self.images = glob(path.join(image_path, '*.pt'))
@@ -113,6 +126,9 @@ class skate_data_synth_pretrain(Dataset):
         return self.transform(img)
 
 class skate_data_combined(Dataset):
+    '''
+    Used in pretraining to load both real and synthetic data in one Dataset instance
+    '''
     def __init__(self, real_dataset, synth_dataset, transform):
         self.transform = transform
         self.real = real_dataset
@@ -122,21 +138,3 @@ class skate_data_combined(Dataset):
     def __getitem__(self, idx):
         if idx < len(self.real): return self.transform(self.real[idx])
         return self.transform(self.synth[idx-len(self.real)])
-
-# if __name__ == '__main__':
-#     device = 'cpu'
-#     transform = Compose([Add_Legs('data/leg_masks128', p=1.0), 
-#                          Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-#     inv_normalize = Normalize(mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225], std=[1/0.229, 1/0.224, 1/0.255])
-    
-#     train_dataset = skate_data_synthetic('data/synthetic_frames128', 'data/backgrounds128', transform=transform)
-#     dataloader = torch.utils.data.DataLoader(train_dataset, 1, shuffle=True, num_workers=1)
-#     for img, labels in dataloader:
-#         print(img.max())
-#         print(img.min())
-#         img = inv_normalize(img)
-#         print(img.max())
-#         print(img.min())
-#         plt.imshow(img.squeeze().permute(1, 2, 0))
-#         plt.show()
-#         break

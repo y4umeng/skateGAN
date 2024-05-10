@@ -8,6 +8,11 @@ from einops.layers.torch import Rearrange
 from timm.models.layers import trunc_normal_
 from timm.models.vision_transformer import Block
 
+'''
+MAE model from https://github.com/IcarusWizard/MAE/blob/main/model.py
+'''
+
+
 def random_indexes(size : int):
     forward_indexes = np.arange(size)
     np.random.shuffle(forward_indexes)
@@ -142,42 +147,3 @@ class MAE_ViT(torch.nn.Module):
         features, backward_indexes = self.encoder(img)
         predicted_img, mask = self.decoder(features,  backward_indexes)
         return predicted_img, mask
-
-class ViT_Classifier(torch.nn.Module):
-    def __init__(self, encoder : MAE_Encoder, num_classes=10) -> None:
-        super().__init__()
-        self.cls_token = encoder.cls_token
-        self.pos_embedding = encoder.pos_embedding
-        self.patchify = encoder.patchify
-        self.transformer = encoder.transformer
-        self.layer_norm = encoder.layer_norm
-        self.head = torch.nn.Linear(self.pos_embedding.shape[-1], num_classes)
-
-    def forward(self, img):
-        patches = self.patchify(img)
-        patches = rearrange(patches, 'b c h w -> (h w) b c')
-        patches = patches + self.pos_embedding
-        patches = torch.cat([self.cls_token.expand(-1, patches.shape[1], -1), patches], dim=0)
-        patches = rearrange(patches, 't b c -> b t c')
-        features = self.layer_norm(self.transformer(patches))
-        features = rearrange(features, 'b t c -> t b c')
-        logits = self.head(features[0])
-        classes = torch.argmax(torch.nn.LogSoftmax(logits), dim=1)
-        return classes * 2.0
-
-
-if __name__ == '__main__':
-    shuffle = PatchShuffle(0.75)
-    a = torch.rand(16, 2, 10)
-    b, forward_indexes, backward_indexes = shuffle(a)
-    print(b.shape)
-
-    img = torch.rand(2, 3, 32, 32)
-    encoder = MAE_Encoder()
-    decoder = MAE_Decoder()
-    features, backward_indexes = encoder(img)
-    print(forward_indexes.shape)
-    predicted_img, mask = decoder(features, backward_indexes)
-    print(predicted_img.shape)
-    loss = torch.mean((predicted_img - img) ** 2 * mask / 0.75)
-    print(loss)
