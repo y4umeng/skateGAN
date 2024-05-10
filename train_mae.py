@@ -49,7 +49,7 @@ if __name__ == '__main__':
     train_transform = Compose([Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
     val_transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
     train_dataset = skate_data_synth('data/batb1k/synthetic_frames128', 'data/batb1k/backgrounds128', 'data/batb1k/poses128.csv', train_transform)
-    val_dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/poses128.csv', val_transform)
+    val_dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/test_synthetic_poses128.csv', val_transform)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, load_batch_size, shuffle=True, num_workers=4)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, load_batch_size, shuffle=False, num_workers=4)
     print(f'Batch size: {load_batch_size}')

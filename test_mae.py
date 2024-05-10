@@ -32,7 +32,7 @@ if __name__ == '__main__':
     steps_per_update = batch_size // load_batch_size
 
     transform = Compose([ToTensor(), Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])])
-    dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/poses128.csv', transform)
+    dataset = skate_data_synth_test('data/batb1k/test_synthetic_frames128', 'data/batb1k/test_synthetic_poses128.csv', transform)
     dataloader = torch.utils.data.DataLoader(dataset, load_batch_size, shuffle=False, num_workers=2)
     
     print(f'Batch size: {load_batch_size}')
