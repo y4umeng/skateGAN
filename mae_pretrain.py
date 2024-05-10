@@ -67,27 +67,27 @@ if __name__ == '__main__':
     step_count = 0
     optim.zero_grad()
     for e in range(args.total_epoch):
-        model.train()
-        losses = []
-        for img in tqdm(iter(dataloader)):
-            step_count += 1
-            img = img.to(device)
-            predicted_img, mask = model(img)
-            loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
-            loss.backward()
-            if step_count % steps_per_update == 0:
-                optim.step()
-                optim.zero_grad()
-            losses.append(loss.item())
-        lr_scheduler.step()
-        avg_loss = sum(losses) / len(losses)
-        # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
-        print(f'In epoch {e}, average training loss is {avg_loss}.')
+        # model.train()
+        # losses = []
+        # for img in tqdm(iter(dataloader)):
+        #     step_count += 1
+        #     img = img.to(device)
+        #     predicted_img, mask = model(img)
+        #     loss = torch.mean((predicted_img - img) ** 2 * mask) / args.mask_ratio
+        #     loss.backward()
+        #     if step_count % steps_per_update == 0:
+        #         optim.step()
+        #         optim.zero_grad()
+        #     losses.append(loss.item())
+        # lr_scheduler.step()
+        # avg_loss = sum(losses) / len(losses)
+        # # writer.add_scalar('mae_pretrain_loss', avg_loss, global_step=e)
+        # print(f'In epoch {e}, average training loss is {avg_loss}.')
 
         ''' visualize the first 16 predicted images on val dataset'''
         model.eval()
         with torch.no_grad():
-            val_img = torch.stack([val_dataset[i] for i in range(16)]) # [16, 3, 32, 32]
+            val_img = torch.stack([val_dataset[int(random.random() * len(val_dataset))] for i in range(16)]) # [16, 3, 32, 32]
             val_img = val_img.to(device)
             predicted_val_img, mask = model(val_img)
             
@@ -95,8 +95,9 @@ if __name__ == '__main__':
             img = torch.cat([val_img * (1 - mask), predicted_val_img, val_img], dim=0)
             img = rearrange(img, '(v h1 w1) c h w -> c (h1 h) (w1 v w)', w1=2, v=3)
             img = inv_normalize(img) 
-            torchvision.utils.save_image(img.cpu(), f"logs/val128.jpg")
-        
+            torchvision.utils.save_image(img.cpu(), f"logs/val128_random.jpg")
+            print("Saved img")
+            break
         ''' save model '''
-        torch.save(model, args.model_path)
+        # torch.save(model, args.model_path)
         
