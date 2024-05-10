@@ -28,8 +28,7 @@ First pretrain the model with mae_pretrain.py then train with train_mae.py.
 
 # Testing
 
-I've provided model checkpoints and a small test set to test against. You can download the test images from
-here:
+I've provided model checkpoints and a small test set to test against. All of this is in the /test directory. 
 
 Run the testing script with:
 
